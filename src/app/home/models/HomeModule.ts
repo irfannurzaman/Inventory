@@ -56,7 +56,7 @@ export const moduleList: HomeModule[] = [
     logo: 'Purchasing',
   },
   {
-    path: '/inv/reorg-soh',
+    path: '/inv/incoming-journalizing',
     name: 'Inventory',
     logo: 'Inventory',
   },

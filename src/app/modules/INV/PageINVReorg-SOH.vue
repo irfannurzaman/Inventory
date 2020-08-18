@@ -24,7 +24,7 @@
         <q-separator/>
 
         <q-card-actions align="right" class="bg-white text-teal">
-          <q-btn size="sm" style="height: 25px" flat label="CANCEL" v-close-popup color="primary" />
+          <q-btn @click="cancel" size="sm" style="height: 25px" flat label="CANCEL" v-close-popup color="primary" />
           <q-btn @click="onClick" size="sm" style="height: 25px" label="OK" color="primary" />
         </q-card-actions>
       </q-card>
@@ -43,7 +43,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, onMounted, watch } from '@vue/composition-api';
-import { paramsReorg } from './utils/params.reorg'
+import { paramsReorg } from './utils/params.inv'
 import { Notify } from 'quasar';
 
 export default defineComponent({
@@ -155,10 +155,16 @@ export default defineComponent({
         state.loading = true
         FETCH_API('reorgMonhandInit')
         }
+        const cancel = () => {
+            window.history.back();
+            state.small= false
+            state.loading = false
+        }
 
     return {
     ...toRefs(state),
-    onClick
+    onClick,
+    cancel
     }
     }
 })

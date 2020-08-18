@@ -34,7 +34,7 @@ const SUBMODULES: Submodule = {
     'Outstanding And Balance',
     'Payment',
   ],
-  INV: ['Reorg-SOH']
+  INV: ['Reorg-SOH', 'Incoming Journalizing']
 };
 
 export const generateModulePath = (moduleAbbr: string, name: string) => {
