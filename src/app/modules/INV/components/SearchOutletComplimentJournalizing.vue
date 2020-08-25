@@ -5,7 +5,6 @@
         <SInput
           label-text="From Date"
           slot-scope="{ inputProps }"
-          placeholder="From - Until"
           readonly
           v-bind="inputProps"
           clearable
@@ -16,28 +15,23 @@
         <SInput
           label-text="To Date"
           slot-scope="{ inputProps }"
-          placeholder="From - Until"
           readonly
           v-bind="inputProps"
           clearable
-          :disable="searches.disableData"
+          :disable="searches.disableButton"
         />
       </v-date-picker>
       <SInput 
-      label-text="Reference Number" 
-      :options="searches.store" 
-      v-model="searches.referenceNumber" 
-      :disable="searches.disableData"/>
+      label-text="Refrence Number" 
+      v-model="searches.refNum" 
+      unmasked-value 
+      :disable="searches.disableButton" />
       <SInput 
       label-text="Description" 
-      :options="searches.store" 
-      v-model="searches.discription"
-      :disable="searches.disableData" />
-      <SSelect v-if="searches.dataKey == 'outgoing'" 
-      label-text="Main Group" 
-      :disable="searches.disableData"
-      :options="searches.mainGroup" 
-      v-model="searches.dataGroup" />
+      v-model="searches.des"
+      unmasked-value 
+      :disable="searches.disableButton" />
+
       <q-btn
         block
         color="primary"
@@ -45,9 +39,8 @@
         style="height: 25px"
         icon="mdi-magnify"
         size="sm"
-        :label="searches.lebelSearch"
+        :label="searches.search"
         class="q-mt-md full-width"
-        :disable="searches.disableButton"
         @click="onSearch"
       />
 
@@ -62,9 +55,6 @@
 <script lang="ts">
 import { defineComponent, ref, reactive, toRefs } from '@vue/composition-api';
 import { setupCalendar, DatePicker } from 'v-calendar';
-import { date } from 'quasar';
-import { log } from 'util';
-import { type } from 'os';
 
 setupCalendar({
   firstDayOfWeek: 2,
@@ -76,8 +66,9 @@ export default defineComponent({
   },
 
   setup(props, { emit }) {
+
     const onSearch = () => {
-      emit('onSearch', { ...props });
+      emit('onSearch', props);
     };
 
     return {

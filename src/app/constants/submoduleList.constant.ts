@@ -9,32 +9,7 @@ interface ModulePath {
 }
 
 const SUBMODULES: Submodule = {
-  GL: [
-    'Chart Of Accounts',
-    'General Journal',
-    'General Ledger',
-    'Posting',
-    'Profit And Loss Budget',
-    'Accounting Date Parameter',
-    'Closing',
-  ],
-  HK: [
-    'Overview',
-    'Room Status Admin',
-    'Out Of Order',
-    'Rooming List',
-    'Discrepancy',
-    'Lost And Found',
-    'Guest Preference List',
-    'Trace',
-  ],
-  AP: [
-    'Supplier Profile',
-    'Purchase Order',
-    'Outstanding And Balance',
-    'Payment',
-  ],
-  INV: ['Reorg-SOH', 'Incoming Journalizing']
+  INV: ['Reorg-SOH', 'Incoming Journalizing', 'Outgoing Journalizing', 'Outlet Compliment Journalizing']
 };
 
 export const generateModulePath = (moduleAbbr: string, name: string) => {

@@ -4,8 +4,8 @@ import {date} from 'quasar'
 export const tableHeaders: TableHeader[] = [
   {
     label: 'Account Number',
-    field: 'acct-fibukonto',
-    name: 'acct-fibukonto',
+    field: 'fibukonto',
+    name: 'fibukonto',
     align: 'left',
     sortable: false,
   },
@@ -52,25 +52,34 @@ export const tableHeaders: TableHeader[] = [
     sortable: false,
   },
   {
-    label: 'Changed ID',
-    field: 'content',
-    name: 'content',
+    label: 'Time',
+    field: 'amount',
+    name: 'amount',
+    align: 'left',
+    sortable: false,
+  },
+  {
+    label: 'Chg-ID',
+    field: 'fibukonto',
+    name: 'fibukonto',
     align: 'left',
     sortable: false,
   },
   {
     label: 'Change Date',
-    field: 'einzelpreis',
-    name: 'einzelpreis',
+    field: 'cost-center',
+    name: 'cost-center',
     sortable: false,
+    align: 'left',
   },
-  { name: 'actions', field: 'actions' },
 ];
 
 export const dataTable = (items) => {
   return items.tGList['t-g-list'].map((item) => ({
     'docu-nr': item['docu-nr'],
     lscheinnr: item.lscheinnr,
+    jnr: item.jnr,
+    fibukonto: item.fibukonto,
     'acct-fibukonto': item['acct-fibukonto'],
     bezeich: item.bezeich,
     debit: formatterMoney(item.debit),

@@ -70,7 +70,7 @@ export default defineComponent({
         $api.inventory.FetchCommon('checkPermission', paramscheckPermission(user))
       ])
       if (api == 'glLinkstockPrepare') {
-        const dataKey = {datakey:'incoming'}
+        const dataKey = {datakey:'outgoing'}
         state.searches = dataIncomingJournalizing(Object.assign(GET_DATA,dataKey), 'prepare')
       } else if (api == 'glLinkstockBtnGo' || api == 'glLinkstockCheckRefno') {
         if (GET_DATA.tGList) {          
@@ -150,7 +150,8 @@ export default defineComponent({
       if (val.searches.toDate == null || val.searches.referenceNumber == '') {
         NotifyCreate('Unfilled field(s) detected', 'red', 'top')
       } else {
-        state.isFetching = true;  
+        state.isFetching = true; 
+        console.log('sukses', val.searches) 
         FETCH_DATA('glLinkstockBtnGo', paramsIncomingJournalizing(val.searches))
         FETCH_DATA('glLinkstockCheckRefno', linkstock_check_refnobl())
       }
