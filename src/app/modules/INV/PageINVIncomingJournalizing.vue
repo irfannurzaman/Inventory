@@ -23,7 +23,7 @@
       >
       <template v-slot:body="props">
         <q-tr :props="props" @click="selection(props.row)" 
-        :class="(props.row.selected)?'bg-blue-grey-2 text-black':'bg-white text-black'">
+        :class="(props.row.selected)?'bg-primary text-black':'bg-white text-black'">
           <q-td :props="props" v-for="col in props.cols" :key="col.name">
             {{col.value}}
           </q-td>

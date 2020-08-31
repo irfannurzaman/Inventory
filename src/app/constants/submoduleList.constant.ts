@@ -9,7 +9,13 @@ interface ModulePath {
 }
 
 const SUBMODULES: Submodule = {
-  INV: ['Reorg-SOH', 'Incoming Journalizing', 'Outgoing Journalizing', 'Outlet Compliment Journalizing']
+  INV: [
+  'Reorg-SOH',
+  'Incoming Journalizing',
+  'Outgoing Journalizing', 
+  'Outlet Compliment Journalizing', 
+  'StoreRequisition'
+]
 };
 
 export const generateModulePath = (moduleAbbr: string, name: string) => {
