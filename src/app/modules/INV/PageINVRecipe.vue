@@ -90,7 +90,8 @@ import {
   ref,
 } from '@vue/composition-api';
 import { tableHeaders } from './tables/recipe.table';
-import { log } from 'util';
+import {Notify} from 'quasar'
+import {DATA_RECIPE} from './utils/params.recipe'
 export default defineComponent({
   setup(_, { root: { $api } }) {
     let charts;
@@ -104,26 +105,27 @@ export default defineComponent({
       idDialog: '',
     });
 
+    // Helpers 
+
+        const NotifyCreate = (mess, col?) => Notify.create({
+              message: mess,
+              color: col,
+            });
+
     // Fetch API
 
     const FETCH_API = async (api, body?) => {
         const GET_DATA = await $api.inventory.FetchAPIINV(api, body)
         switch (api) {
             case 'recipeListPrepare':
-                charts = GET_DATA.tHRezept['t-h-rezept'].map((item, i) =>
-                  Object.assign({}, item, GET_DATA.costList['cost-list'][i])
-                );
+                charts = DATA_RECIPE(GET_DATA)
                 state.data = charts
                 break;
         
             default:
                 break;
         }
-        console.log('sukses', GET_DATA)
     }
-
-
-
 
     onMounted(async () => {
         FETCH_API('recipeListPrepare')
@@ -132,56 +134,50 @@ export default defineComponent({
       state.dialog = false;
     };
 
-    // const asyncCall = async (val, input) => {
-    //   const data1 = await Promise.all([
-    //     $api.inventory.apiRecipe('recipeListPrepare'),
-    //   ]);
-
-    //   // MENGGABUNGKAN DUA OBJECT DALAM SATU ARRAY
-    //   const data = data1[0].tHRezept['t-h-rezept'].map((item, i) =>
-    //     Object.assign({}, item, data1[0].costList['cost-list'][i])
-    //   );
-
-    //   if (val == '1') {
-    //     state.data = data.filter((data: any) => {
-    //       return data.artnrrezept.toString().includes(input.toString());
-    //     });
-    //     if (state.data.length < 14) {
-    //       state.page = false;
-    //     }
-    //     if (state.data.length > 14) {
-    //       state.page = true;
-    //     }
-    //   }
-    //   if (val == '2') {
-    //     state.data = data.filter((data: any) => {
-    //       return data
-    //         .toLowerCase()
-    //         .bezeich.toLowerCase()
-    //         .includes(input.toLowerCase());
-    //     });
-    //     if (state.data.length < 14) {
-    //       state.page = false;
-    //     }
-    //     if (state.data.length > 14) {
-    //       state.page = true;
-    //     }
-    //   }
-    //   if (val == '3') {
-    //     state.data = data.filter((data: any) => {
-    //       return data.kategorie.toString().includes(input.toString());
-    //     });
-    //     if (state.data.length < 14) {
-    //       state.page = false;
-    //     }
-    //     if (state.data.length > 14) {
-    //       state.page = true;
-    //     }
-    //   }
-    // };
-
     const onSearch = (value) => {
-    console.log('sukses', value)
+        if (value.group == '1') {
+            if (value.inputan == null || value.inputan == '') {
+                state.data = charts.sort((a, b) => {
+                    return a.artnrrezept - b.artnrrezept
+                })
+            } else {
+                if (!isNaN(value.inputan)) {                    
+                    state.data = charts.filter(items => {
+                        return items.artnrrezept.toString().includes(value.inputan)
+                    })
+                } else {
+                    NotifyCreate('this is not a number', 'red')
+                }
+            }
+        } else if(value.group == '2'){
+            if (value.inputan == null || value.inputan == '') {
+                state.data = charts.sort((a, b) => {
+                    const ab = a.bezeich.toLowerCase()
+                    const bc = b.bezeich.toLowerCase()
+                    if(ab < bc){
+                       return -1
+                    }
+                })
+            } else {
+                state.data = charts.filter(items => {
+                    return items.bezeich.toLowerCase().includes(value.inputan.toLowerCase())
+                })
+            }
+        } else {
+            if (value.inputan == null || value.inputan == '') {
+                state.data = charts.sort((a, b) => {
+                    return a.kategorie - b.kategorie
+                })
+            } else {
+                if (!isNaN(value.inputan)) {  
+                state.data = charts.filter(items => {
+                    return items.kategorie.toString().includes(value.inputan)
+                })
+                } else {
+                    NotifyCreate('this is not a number', 'red')
+                }
+            }
+        }
     };
 
     const editItem = (accountId) => {

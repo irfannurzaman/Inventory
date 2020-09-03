@@ -8,61 +8,67 @@ export const tableHeaders: TableHeader[] = [
     field: 'artnrrezept',
     name: 'artnrrezept',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     // label: getLabels('description'),
     label: 'description',
-    field: 'bezeich',
-    name: 'bezeich',
+    field: 'bezeich1',
+    name: 'bezeich1',
     align: 'left',
-    sortable: true,
-  },
-  {
+    sortable: false,
+},
+{
     // label: getLabels('category'),
     label: 'category',
     field: 'kategorie',
     name: 'kategorie',
-    sortable: true,
-  },
-  {
+    align: 'left',
+    sortable: false,
+},
+{
     label: 'Portion',
     field: 'portion',
     name: 'portion',
     align: 'left',
-    sortable: true,
-  },
-  {
+    sortable: false,
+},
+{
     label: 'Category Name',
-    field: 'bezeich',
-    name: 'bezeich',
-    sortable: true,
-  },
-  {
+    field: 'bezeich2',
+    align: 'left',
+    name: 'bezeich2',
+    sortable: false,
+},
+{
     // label: getLabels('created'),
     label: 'created',
     field: 'datumanlage',
+    align: 'left',
     name: 'datumanlage',
-    sortable: true,
-  },
-  {
+    sortable: false,
+},
+{
     // label: getLabels('last_changed'),
     label: 'last_changed',
     field: 'datummod',
+    align: 'left',
     name: 'datummod',
-    sortable: true,
-  },
-  {
+    sortable: false,
+},
+{
     label: 'Recipe Cost',
     field: 'cost',
+    align: 'left',
     name: 'cost',
-    sortable: true,
-  },
-  {
+    sortable: false,
+},
+{
     label: 'Cost Portion',
     field: 'cost',
     name: 'cost',
-    sortable: true,
+    align: 'left',
+    sortable: false,
   },
   { name: 'actions', field: 'actions' },
 ];
@@ -73,70 +79,70 @@ export const modalAdd: TableHeader[] = [
     field: 'artnr',
     name: 'artnr',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'Description',
     field: 'bezeich',
     name: 'bezeich',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'R-Unit',
     field: 's-unit',
     name: 's-unit',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'Net-Quantity',
     field: 'menge',
     name: 'menge',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'Cost',
     field: 'cost',
     name: 'cost',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'Unit',
     field: 'masseinheit',
     name: 'masseinheit',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'Content',
     field: 'inhalt',
     name: 'inhalt',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'Avg Price',
     field: 'vk-preis',
     name: 'vk-preis',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'Avg Price',
     field: 'vk-preis',
     name: 'vk-preis',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'Loss Factor(%)',
     field: 'lostfact',
     name: 'lostfact',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   { name: 'actions', field: 'actions' },
 ];
@@ -147,42 +153,42 @@ export const stockArticle: TableHeader[] = [
     field: 'artnr',
     name: 'artnr',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'Description',
     field: 'bezeich',
     name: 'bezeich',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'Unit',
     field: 'masseinheit',
     name: 'masseinheit',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'Content',
     field: 'inhalt',
     name: 'inhalt',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'R-Unit',
     field: 'herkunft',
     name: 'herkunft',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'Avrg Price',
     field: 'vk-preis',
     name: 'vk-preis',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
 ];
 
@@ -192,27 +198,89 @@ export const Recipe: TableHeader[] = [
     field: 'artnrrezept',
     name: 'artnrrezept',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'Description',
     field: 'bezeich',
     name: 'bezeich',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'Portion',
     field: 'portion',
     name: 'portion',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
   {
     label: 'Category',
     field: '',
     name: '',
     align: 'left',
-    sortable: true,
+    sortable: false,
   },
 ];
+const width1 = '130px'
+const width2 = '190px'
+const right = '10px'
+export const useInputModal = [
+    {
+        label: 'Category Number',
+        value: '',
+        width: width1,
+        marginRight: right
+    },
+    {
+        label: 'Category Name',
+        value: '',
+        width: width2,
+        marginRight: right
+    },
+    {
+        label: 'Recipe Number',
+        value: '',
+        width: width1,
+        marginRight: right
+    },
+    {
+        label: 'Description',
+        value: '',
+        width: width2,
+    },
+    {
+        label: 'Portion',
+        value: '',
+        width: width1,
+        marginRight: '200px'
+    },
+    {
+        label: 'Articel Number',
+        value: '',
+        width: width1,
+        marginRight: right
+    },
+    {
+        label: 'content',
+        value: '',
+        width: '90px',
+        marginRight: right
+    },
+    {
+        label: 'Quantity',
+        value: '',
+        width: '90px',
+    },
+    {
+        label: 'Loss Factor',
+        value: '',
+        width: width1,
+        marginRight: right
+    },
+    {
+        label: 'Recipe Cost',
+        value: '',
+        width: width2,
+    },
+]
