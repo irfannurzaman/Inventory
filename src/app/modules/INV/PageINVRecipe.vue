@@ -34,7 +34,7 @@
         </template>
 
         <template #header-cell-actions="props">
-          <q-th :props="props" class="fixed-col right">{{ props.col.label }}</q-th>
+          <q-th style="z-index : 4" :props="props" class="fixed-col right">{{ props.col.label }}</q-th>
         </template>
 
         <template #body-cell-actions="props">
@@ -110,9 +110,10 @@ export default defineComponent({
         const GET_DATA = await $api.inventory.FetchAPIINV(api, body)
         switch (api) {
             case 'recipeListPrepare':
-                state.data = GET_DATA.tHRezept['t-h-rezept'].map((item, i) =>
+                charts = GET_DATA.tHRezept['t-h-rezept'].map((item, i) =>
                   Object.assign({}, item, GET_DATA.costList['cost-list'][i])
                 );
+                state.data = charts
                 break;
         
             default:
@@ -126,72 +127,61 @@ export default defineComponent({
 
     onMounted(async () => {
         FETCH_API('recipeListPrepare')
-    //   const data1 = await Promise.all([
-    //     $api.inventory.apiRecipe('recipeListPrepare'),
-    //   ]);
-
-    //   state.data = data1[0].tHRezept['t-h-rezept'].map((item, i) =>
-    //     Object.assign({}, item, data1[0].costList['cost-list'][i])
-    //   );
-    //   if (state.data !== undefined) {
-    //     state.page = true;
-    //   }
-    //   ``;
     });
     const saveData = () => {
       state.dialog = false;
     };
 
-    const asyncCall = async (val, input) => {
-      const data1 = await Promise.all([
-        $api.inventory.apiRecipe('recipeListPrepare'),
-      ]);
+    // const asyncCall = async (val, input) => {
+    //   const data1 = await Promise.all([
+    //     $api.inventory.apiRecipe('recipeListPrepare'),
+    //   ]);
 
-      // MENGGABUNGKAN DUA OBJECT DALAM SATU ARRAY
-      const data = data1[0].tHRezept['t-h-rezept'].map((item, i) =>
-        Object.assign({}, item, data1[0].costList['cost-list'][i])
-      );
+    //   // MENGGABUNGKAN DUA OBJECT DALAM SATU ARRAY
+    //   const data = data1[0].tHRezept['t-h-rezept'].map((item, i) =>
+    //     Object.assign({}, item, data1[0].costList['cost-list'][i])
+    //   );
 
-      if (val == '1') {
-        state.data = data.filter((data: any) => {
-          return data.artnrrezept.toString().includes(input.toString());
-        });
-        if (state.data.length < 14) {
-          state.page = false;
-        }
-        if (state.data.length > 14) {
-          state.page = true;
-        }
-      }
-      if (val == '2') {
-        state.data = data.filter((data: any) => {
-          return data
-            .toLowerCase()
-            .bezeich.toLowerCase()
-            .includes(input.toLowerCase());
-        });
-        if (state.data.length < 14) {
-          state.page = false;
-        }
-        if (state.data.length > 14) {
-          state.page = true;
-        }
-      }
-      if (val == '3') {
-        state.data = data.filter((data: any) => {
-          return data.kategorie.toString().includes(input.toString());
-        });
-        if (state.data.length < 14) {
-          state.page = false;
-        }
-        if (state.data.length > 14) {
-          state.page = true;
-        }
-      }
-    };
+    //   if (val == '1') {
+    //     state.data = data.filter((data: any) => {
+    //       return data.artnrrezept.toString().includes(input.toString());
+    //     });
+    //     if (state.data.length < 14) {
+    //       state.page = false;
+    //     }
+    //     if (state.data.length > 14) {
+    //       state.page = true;
+    //     }
+    //   }
+    //   if (val == '2') {
+    //     state.data = data.filter((data: any) => {
+    //       return data
+    //         .toLowerCase()
+    //         .bezeich.toLowerCase()
+    //         .includes(input.toLowerCase());
+    //     });
+    //     if (state.data.length < 14) {
+    //       state.page = false;
+    //     }
+    //     if (state.data.length > 14) {
+    //       state.page = true;
+    //     }
+    //   }
+    //   if (val == '3') {
+    //     state.data = data.filter((data: any) => {
+    //       return data.kategorie.toString().includes(input.toString());
+    //     });
+    //     if (state.data.length < 14) {
+    //       state.page = false;
+    //     }
+    //     if (state.data.length > 14) {
+    //       state.page = true;
+    //     }
+    //   }
+    // };
 
-    const onSearch = (val, input) => {
-      asyncCall(val, input);
+    const onSearch = (value) => {
+    console.log('sukses', value)
     };
 
     const editItem = (accountId) => {
