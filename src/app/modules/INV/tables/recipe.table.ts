@@ -227,12 +227,6 @@ const width2 = '190px'
 const right = '10px'
 export const useInputModal = [
     {
-        label: 'Category Number',
-        value: '',
-        width: width1,
-        marginRight: right
-    },
-    {
         label: 'Category Name',
         value: '',
         width: width2,
@@ -254,12 +248,6 @@ export const useInputModal = [
         value: '',
         width: width1,
         marginRight: '200px'
-    },
-    {
-        label: 'Articel Number',
-        value: '',
-        width: width1,
-        marginRight: right
     },
     {
         label: 'content',

@@ -8,21 +8,39 @@
             <div class="row">
               <div class="col">
                 <div class="row">
+                    <SSelect 
+                    label-text="Category Number" 
+                    :style="{width: '130px', marginRight: '10px'}"/>
                     <SInput
                       :key="col.label"
-                      v-for="col in useInputModal"
+                      v-for="col in useInputModal.filter(cols => ![
+                      'content', 'Quantity', 'Loss Factor', 'Recipe Cost'].includes(cols.label))"
+                      :style="{width: col.width, marginRight: col.marginRight}"
+                      :label-text="col.label"
+                      v-model="col.value"
+                    />
+                    <SInput
+                      :style="{width: '130px', marginRight: '10px'}"
+                      label-text='Articel Number'
+                    />
+                    <SInput
+                      :key="col.label"
+                      v-for="col in useInputModal.filter(cols => [
+                      'content', 'Quantity', 'Loss Factor', 'Recipe Cost'].includes(cols.label))"
                       :style="{width: col.width, marginRight: col.marginRight}"
                       :label-text="col.label"
                       v-model="col.value"
                     />
                 </div>
                 <q-btn
-                  :style="{marginTop: '-7px', height: '25px', width: '230px'}"
+                  :style="{marginTop: '-7px', height: '25px', width: '330px'}"
                   dense
+                  icon="mdi-plus"
                   color="primary"
                   max-height="10"
                   label="ADD"
                   @click="add"
+                  size="sm"
                 />
               </div>
               <div class="col">
