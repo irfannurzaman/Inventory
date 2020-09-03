@@ -14,7 +14,8 @@ const SUBMODULES: Submodule = {
   'Incoming Journalizing',
   'Outgoing Journalizing', 
   'Outlet Compliment Journalizing', 
-  'StoreRequisition'
+  'StoreRequisition',
+  'Recipe'
 ]
 };
 
