@@ -179,32 +179,5 @@ export default defineComponent({
 .q-toolbar {
   background: $primary-grad;
 }
-.mystickyvirtscrolltable {
-  height: 410px;
-}
 
-.verticalTable {
-  height: 405px;
-}
-
-.widthModalArrt {
-  width: 700px;
-  max-width: 90vw;
-}
-
-.my-sticky-virtscroll-table thead tr:first-child th {
-  background-color: #fff;
-}
-
-.my-sticky-virtscroll-table thead tr th {
-  position: sticky;
-  // z-index: 1
-}
-.my-sticky-virtscroll-table thead tr:last-child th {
-  top: 48px;
-}
-
-.my-sticky-virtscroll-table thead tr:first-child th {
-  top: 0;
-}
 </style>

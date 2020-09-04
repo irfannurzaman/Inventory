@@ -23,18 +23,67 @@
           :pagination.sync="pagination"
           :hide-bottom="hide_bottom"
           class="table-accounting-date"
-          />
-          <STable
-          v-else
-          :loading="isFetching"
-          :columns="columns2"
-          :data="data2"
-          :rows-per-page-options="[0]"
-          :pagination.sync="pagination"
-          :hide-bottom="hide_bottom"
-          class="table-accounting-date"
-          />
+          >
+         <template v-slot:body="props">
+           <q-tr :props="props" @click="selection(props.row)" 
+            :class="{
+              selected : props.row.selected
+            }">
+            <q-td :props="props" key="artnr">
+                {{props.row.artnr}}
+            </q-td>
+            <q-td :props="props" key="bezeich">
+                <span v-if="props.row.bezeich.length < 10">
+                  {{props.row.bezeich}}
+                </span>
+                <span v-else>
+                  {{props.row.bezeich.substring(0, 10) + '...'}}
+                  <q-tooltip 
+                    content-class="bg-indigo" 
+                    :offset="[10, 10]">
+                      {{props.row.bezeich}}
+                  </q-tooltip>
+                </span>
+            </q-td>
+             <q-td 
+             :props="props" 
+             v-for="col in props.cols.filter(col =>![
+                 'artnr', 'bezeich'].includes(col.name))" :key="col.name">
+               {{col.value}}
+             </q-td>
+           </q-tr>
+         </template>
+          </STable>
+        <STable
+        v-else
+        :loading="isFetching"
+        :columns="columns2"
+        :data="data2"
+        :rows-per-page-options="[0]"
+        :pagination.sync="pagination"
+        :hide-bottom="hide_bottom"
+        class="table-accounting-date"
+        >
+          <template v-slot:body="props">
+            <q-tr :props="props" @click="selection(props.row)" 
+            :class="{
+              selected : props.row.selected
+            }">
+             <q-td 
+             :key="col.name" 
+             :props="props" 
+             v-for="col in props.cols">
+                {{col.value}} 
+             </q-td>
+            </q-tr>
+          </template>
+        </STable>
        </q-card-section>
+        <q-separator />
+      <q-card-actions align="right" class="bg-white text-teal">
+        <q-btn @click="$emit('cencel')" flat label="Cancel" />
+        <q-btn @click="saveData" label="OK" />
+      </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
@@ -56,14 +105,14 @@ export default defineComponent({
     setup(props){
     let dataRecipe = props.dialogChildRecipe.dataChildRecipe
       const state = reactive({
-          dialog: true,
+        dialog: true,
         group: '1',
         isFetching: false,
         columns1: [],
         data1: [],
         columns2: [],
         data2: [],
-        hide_bottom: false,
+        hide_bottom: true,
         options: [
             {
             label: 'Stock Article',
@@ -81,7 +130,8 @@ export default defineComponent({
             artnrrezept: items.artnrrezept,
             bezeich1: items.bezeich.substring(0, 24),
             portion: items.portion,
-            bezeich2: items.bezeich.substring(24)
+            bezeich2: items.bezeich.substring(24),
+            selected: false
           }))
     }
     const dataRepetitionArticelNumber = (GET_DATA) => {
@@ -91,7 +141,8 @@ export default defineComponent({
             masseinheit: items.masseinheit,
             inhalt: items.inhalt,
             herkunft: items.herkunft.replace(/;/g, ''),
-            'vk-preis': formatterMoney(items['vk-preis'])
+            'vk-preis': formatterMoney(items['vk-preis']),
+            selected: false
         }))
     }
     let recipeData = dataRepetitionRecipe(dataRecipe.tHRezept['t-h-rezept'])
@@ -116,7 +167,19 @@ export default defineComponent({
               state.data2 = recipeData
           }
       })
+
+    const selection = (dataRow) => {  
+      for(const i in state.data1){
+        state.data1[i]['selected'] = false
+      }
+      for(const i in state.data2){
+        state.data2[i]['selected'] = false
+      }
+      dataRow['selected'] = true;
+    }
+
     return {
+     selection,
      ...toRefs(state),
      pagination: {
         rowsPerPage: 0,
@@ -145,4 +208,9 @@ export default defineComponent({
     }
   }
 }
+  tr.selected td {
+    background-color: #2d00e2 !important;
+    color: #fff;
+  }
+
 </style>
