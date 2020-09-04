@@ -62,8 +62,30 @@
            :pagination.sync="pagination"
            :hide-bottom="hide_bottom"
            class="table-accounting-date"
-           />
-          
+           >
+            <template #header-cell-fibukonto="props">
+              <q-th :props="props" class="fixed-col left">{{ props.col.label }}</q-th>
+            </template>
+            <template #body-cell-fibukonto="props">
+              <q-td :props="props" class="fixed-col left">{{ props.row.fibukonto }}</q-td>
+            </template>
+            <template #header-cell-actions="props">
+              <q-th style="z-index : 4" :props="props" class="fixed-col right">{{ props.col.label }}</q-th>
+            </template>
+            <template #body-cell-actions="props">
+              <q-td :props="props" class="fixed-col right">
+                <q-icon name="mdi-dots-vertical" size="16px">
+                  <q-menu auto-close anchor="bottom right" self="top right">
+                    <q-list>
+                      <q-item clickable v-ripple>
+                        <q-item-section>delete</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </q-icon>
+              </q-td>
+            </template>
+           </STable>
           </div>
         </div>
       </q-card-section>
@@ -133,19 +155,19 @@ export default defineComponent({
     }
 
     const addDataRecipe = () => {
-      const dataColums = useInputModal
-      console.log('sukses', dataColums[7].value)
       const art = state.articelNumber as any
-        state.data.push({
-          artnr: art.artnr,
-          bezeich: art.bezeich,
-          's-unit': art.herkunft,
-          menge: dataColums[6].value,
-          inhalt: art.inhalt,
-          'vk-preis': art['vk-preis'],
-          lossFactor: '123'
-        })
-        state.hide_bottom = true
+      state.data.push({
+        artnr: art.artnr,
+        bezeich: art.bezeich,
+        's-unit': art.herkunft,
+        menge: useInputModal[6].value,
+        cost: '',
+        masseinheit: art.masseinheit,
+        inhalt: art.inhalt,
+        'vk-preis': art['vk-preis'],
+        lostfact: useInputModal[7].value
+      })
+      state.hide_bottom = true
     }
 
     return {

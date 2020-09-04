@@ -187,10 +187,10 @@ export default defineComponent({
     return {
      selection,
      onClickDataAN,
-     ...toRefs(state),
      pagination: {
-        rowsPerPage: 0,
+         rowsPerPage: 0,
       },
+     ...toRefs(state),
     }
     }
 })

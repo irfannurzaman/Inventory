@@ -41,10 +41,10 @@
             <q-icon name="mdi-dots-vertical" size="16px">
               <q-menu auto-close anchor="bottom right" self="top right">
                 <q-list>
-                  <q-item clickable v-ripple @click="editItem">
+                  <q-item clickable v-ripple>
                     <q-item-section>edit</q-item-section>
                   </q-item>
-                  <q-item clickable v-ripple @click="confirm = true">
+                  <q-item clickable v-ripple>
                     <q-item-section>delete</q-item-section>
                   </q-item>
                 </q-list>
