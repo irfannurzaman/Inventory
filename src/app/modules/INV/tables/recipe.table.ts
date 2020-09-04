@@ -73,7 +73,7 @@ export const tableHeaders: TableHeader[] = [
   { name: 'actions', field: 'actions' },
 ];
 
-export const modalAdd: TableHeader[] = [
+export const tableDialogRecipe: TableHeader[] = [
   {
     label: 'Artcle Number',
     field: 'artnr',
@@ -190,6 +190,13 @@ export const stockArticle: TableHeader[] = [
     align: 'left',
     sortable: false,
   },
+  {
+    label: 'Loss Factor (%)',
+    field: 'lossFactor',
+    name: 'lossFactor',
+    align: 'left',
+    sortable: false,
+  },
 ];
 
 export const Recipe: TableHeader[] = [
@@ -226,54 +233,54 @@ const width1 = '130px'
 const width2 = '190px'
 const right = '10px'
 export const useInputModal = [
-    {
-        label: 'Category Number',
-        value: '',
-        width: width1,
-        marginRight: right
-    },
-    {
-        label: 'Category Name',
-        value: '',
-        width: width2,
-    },
-    {
-        label: 'Recipe Number',
-        value: '',
-        width: width1,
-        marginRight: right
-    },
-    {
-        label: 'Description',
-        value: '',
-        width: width2,
-    },
-    {
-        label: 'Portion',
-        value: '',
-        width: width1,
-        marginRight: '200px',
-    },
-    {
-        label: 'content',
-        value: '',
-        width: '90px',
-        marginRight: right
-    },
-    {
-        label: 'Quantity',
-        value: '',
-        width: '90px',
-    },
-    {
-        label: 'Loss Factor',
-        value: '',
-        width: width1,
-        marginRight: right
-    },
-    {
-        label: 'Recipe Cost',
-        value: '',
-        width: width2,
-    },
+  {
+      label: 'Category Number',
+      value: '',
+      width: width1,
+      marginRight: right
+  },
+  {
+      label: 'Category Name',
+      value: '',
+      width: width2,
+  },
+  {
+      label: 'Recipe Number',
+      value: '',
+      width: width1,
+      marginRight: right
+  },
+  {
+      label: 'Description',
+      value: '',
+      width: width2,
+  },
+  {
+      label: 'Portion',
+      value: '',
+      width: width1,
+      marginRight: '200px',
+  },
+  {
+      label: 'content',
+      value: '',
+      width: '90px',
+      marginRight: right
+  },
+  {
+      label: 'Quantity',
+      value: '',
+      width: '90px',
+  },
+  {
+      label: 'Loss Factor',
+      value: '',
+      width: width1,
+      marginRight: right
+  },
+  {
+      label: 'Recipe Cost',
+      value: '',
+      width: width2,
+  },
 ]

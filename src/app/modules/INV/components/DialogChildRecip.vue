@@ -81,8 +81,8 @@
        </q-card-section>
         <q-separator />
       <q-card-actions align="right" class="bg-white text-teal">
-        <q-btn @click="$emit('cencel')" flat label="Cancel" />
-        <q-btn @click="saveData" label="OK" />
+        <q-btn v-close-popup color="primary" flat label="Cancel" />
+        <q-btn color="primary" @click="onClickDataAN" label="OK" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -102,8 +102,9 @@ export default defineComponent({
     props: {
         dialogChildRecipe: { type: Object, required: true },
     },
-    setup(props){
+    setup(props,{emit}){
     let dataRecipe = props.dialogChildRecipe.dataChildRecipe
+    let dataChild
       const state = reactive({
         dialog: true,
         group: '1',
@@ -176,10 +177,16 @@ export default defineComponent({
         state.data2[i]['selected'] = false
       }
       dataRow['selected'] = true;
+      dataChild = dataRow
+    }
+
+    const onClickDataAN = () => {
+        emit('onClickDataAN', dataChild)
     }
 
     return {
      selection,
+     onClickDataAN,
      ...toRefs(state),
      pagination: {
         rowsPerPage: 0,

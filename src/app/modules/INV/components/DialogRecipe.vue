@@ -8,38 +8,39 @@
         <div class="row">
           <div class="col">
             <div class="row">
-                <SSelect
-                :key="col.label" 
+              <SSelect
+              :key="col.label" 
+              :label-text="col.label"
+              v-for="col in useInputModal.filter(cols => [
+              'Category Number'].includes(cols.label))"
+              :options="dialogRecipe.selectCatNo" 
+              v-model="col.value"
+              :style="{
+                width: col.width, 
+                marginRight: col.marginRight}"
+              />
+              <SInput
+                :key="col.label"
+                v-for="col in useInputModal.filter(cols => ![ 'Category Number',
+                'content', 'Quantity', 'Loss Factor', 'Recipe Cost'].includes(cols.label))"
+                :style="{width: col.width, marginRight: col.marginRight}"
                 :label-text="col.label"
-                v-for="col in useInputModal.filter(cols => [
-                'Category Number'].includes(cols.label))"
-                :options="dialogRecipe.selectCatNo" 
                 v-model="col.value"
-                :style="{
-                  width: col.width, 
-                  marginRight: col.marginRight}"
-                />
-                <SInput
-                  :key="col.label"
-                  v-for="col in useInputModal.filter(cols => ![ 'Category Number',
-                  'content', 'Quantity', 'Loss Factor', 'Recipe Cost'].includes(cols.label))"
-                  :style="{width: col.width, marginRight: col.marginRight}"
-                  :label-text="col.label"
-                  v-model="col.value"
-                />
-                <SInput
-                  :style="{width: '130px', marginRight: '10px'}"
-                  label-text='Articel Number'
-                  @click="onClickAN"
-                />
-                <SInput
-                  :key="col.label"
-                  v-for="col in useInputModal.filter(cols => [
-                  'content', 'Quantity', 'Loss Factor', 'Recipe Cost'].includes(cols.label))"
-                  :style="{width: col.width, marginRight: col.marginRight}"
-                  :label-text="col.label"
-                  v-model="col.value"
-                />
+              />
+              <SInput
+                :style="{width: '130px', marginRight: '10px'}"
+                label-text='Articel Number'
+                @click="onClickAN"
+                v-model="articelNumber.artnr"
+              />
+              <SInput
+                :key="col.label"
+                v-for="col in useInputModal.filter(cols => [
+                'content', 'Quantity', 'Loss Factor', 'Recipe Cost'].includes(cols.label))"
+                :style="{width: col.width, marginRight: col.marginRight}"
+                :label-text="col.label"
+                v-model="col.value"
+              />
             </div>
             <q-btn
               :style="{marginTop: '-7px', height: '25px', width: '330px'}"
@@ -48,66 +49,33 @@
               color="primary"
               max-height="10"
               label="ADD"
-              @click="add"
+              @click="addDataRecipe"
               size="sm"
             />
           </div>
           <div class="col">
            <STable
            :loading="isLoading"
-           :columns="tableHeaders"
+           :columns="tableDialogRecipe"
            :data="data"
            :rows-per-page-options="[0]"
            :pagination.sync="pagination"
            :hide-bottom="hide_bottom"
            class="table-accounting-date"
-           >
-              <template #header-cell-fibukonto="props">
-                <q-th :props="props" class="fixed-col left">
-                  {{
-                  props.col.label
-                  }}
-                </q-th>
-              </template>  
-              <template #body-cell-fibukonto="props">
-                <q-td :props="props" class="fixed-col left">
-                  {{
-                  props.row.fibukonto
-                  }}
-                </q-td>
-              </template>  
-              <template #header-cell-actions="props">
-                <q-th :props="props" class="fixed-col right">
-                  {{
-                  props.col.label
-                  }}
-                </q-th>
-              </template>  
-              <template #body-cell-actions="props">
-                <q-td :props="props" class="fixed-col right">
-                  <q-icon name="more_vert" size="16px">
-                    <q-menu auto-close anchor="bottom right" self="top right">
-                      <q-list>
-                        <q-item clickable v-ripple>
-                          <q-item-section>delete</q-item-section>
-                        </q-item>
-                      </q-list>
-                    </q-menu>
-                  </q-icon>
-                </q-td>
-              </template>
-            </STable>
+           />
+          
           </div>
         </div>
       </q-card-section>
       <q-separator />
       <q-card-actions align="right" class="bg-white text-teal">
-        <q-btn @click="$emit('cencel')" flat label="Cancel" />
-        <q-btn @click="saveData" label="OK" />
+        <q-btn v-close-popup color="primary" flat label="Cancel" />
+        <q-btn color="primary" @click="onClick" label="OK" />
       </q-card-actions>
     </q-card>
     <DialogChildRecip 
     :dialogChildRecipe="dialogChildRecipe" 
+    @onClickDataAN="onClickDataAN"
     />
   </q-dialog>
 </template>
@@ -122,10 +90,9 @@ import {
   toRefs,
 } from '@vue/composition-api';
 import {
-  tableHeaders,
+  tableDialogRecipe,
   stockArticle,
   Recipe,
-  modalAdd,
   useInputModal
 } from '../tables/recipe.table';
 export default defineComponent({
@@ -138,6 +105,7 @@ export default defineComponent({
       isLoading: false,
       hide_bottom: false,
       data: [],
+      articelNumber: {} as any,
       dialogChildRecipe: {
         openModalChild: false,
         dataChildRecipe: [] as any
@@ -159,17 +127,39 @@ export default defineComponent({
       state.dialogChildRecipe.openModalChild = true
     }
 
+    const onClickDataAN = (dataRow) => {
+      state.dialogChildRecipe.openModalChild = false
+      state.articelNumber = dataRow
+    }
+
+    const addDataRecipe = () => {
+      const dataColums = useInputModal
+      console.log('sukses', dataColums[7].value)
+      const art = state.articelNumber as any
+        state.data.push({
+          artnr: art.artnr,
+          bezeich: art.bezeich,
+          's-unit': art.herkunft,
+          menge: dataColums[6].value,
+          inhalt: art.inhalt,
+          'vk-preis': art['vk-preis'],
+          lossFactor: '123'
+        })
+        state.hide_bottom = true
+    }
+
     return {
       onClickAN,
+      onClickDataAN,
       useInputModal,
-      tableHeaders,
+      addDataRecipe,
+      tableDialogRecipe,
       ...toRefs(state),
       pagination: { page: 1, rowsPerPage: 10 },
     };
   },
 
   components: {
-    ModalRecipeNumber: () => import('./ModalRecipeNumber.vue'),
     DialogChildRecip: () => import('./DialogChildRecip.vue'),
   },
 });
