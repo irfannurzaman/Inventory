@@ -46,18 +46,15 @@
             />
           </div>
           <div class="col">
-            <STable
-              dense
-              style="marginLeft: 20px"
-              :class="{ verticalTable: pageColumns }"
-              :columns="modalAdd"
-              :data="dataTable"
-              separator="cell"
-              :rows-per-page-options="[10, 13, 16]"
-              :virtual-scroll-sticky-size-start="48"
-              :pagination.sync="pagination"
-              :hide-bottom="false"
-            >
+           <STable
+           :loading="isLoading"
+           :columns="tableHeaders"
+           :data="data"
+           :rows-per-page-options="[0]"
+           :pagination.sync="pagination"
+           :hide-bottom="hide_bottom"
+           class="table-accounting-date"
+           >
               <template #header-cell-fibukonto="props">
                 <q-th :props="props" class="fixed-col left">
                   {{
@@ -84,7 +81,7 @@
                   <q-icon name="more_vert" size="16px">
                     <q-menu auto-close anchor="bottom right" self="top right">
                       <q-list>
-                        <q-item clickable v-ripple @click="confirmDelete(props.row)">
+                        <q-item clickable v-ripple>
                           <q-item-section>delete</q-item-section>
                         </q-item>
                       </q-list>
@@ -131,36 +128,11 @@ export default defineComponent({
   setup(props, { emit, root: { $api } }) {
     const state = reactive({
       isLoading: false,
+      hide_bottom: false,
+      data: [],
       dialogChildRecipe: {
         openModalChild: false
       },
-
-
-      dialog: true,
-      dialogModel: false,
-      confirm: false,
-      group: '',
-      options: [
-        {
-          label: 'Stock Article',
-          value: '1',
-        },
-        {
-          label: 'Recipe',
-          value: '2',
-        },
-      ],
-      columns: [],
-      data: [],
-      page: false,
-      trueandfalse: false,
-      className: [],
-      class2: false,
-      dataTable: [],
-      pageColumns: false,
-      idRecid: '',
-      modify: '',
-      idDialog: '' as any,
     });
 
 

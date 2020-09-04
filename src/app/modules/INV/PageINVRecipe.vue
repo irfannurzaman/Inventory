@@ -139,6 +139,11 @@ export default defineComponent({
           case 'recipeSelect':
             const data = mapSelect(GET_DATA)
             state.dialogRecipe.selectCatNo = data
+            break;
+          case 'addRecipePrepare':
+          console.log('sukses', GET_DATA)
+            
+            break;
           default:
               break;
         }
@@ -149,6 +154,7 @@ export default defineComponent({
     onMounted(async () => {
         FETCH_API('recipeListPrepare')
         FETCH_API('recipeSelect')
+        FETCH_API('addRecipePrepare')
     });
 
     const onSearch = (value) => {
