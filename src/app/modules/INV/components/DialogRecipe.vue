@@ -8,13 +8,20 @@
         <div class="row">
           <div class="col">
             <div class="row">
-                <SSelect 
-                label-text="Category Number"
+                <SSelect
+                :key="col.label" 
+                :label-text="col.label"
+                v-for="col in useInputModal.filter(cols => [
+                'Category Number'].includes(cols.label))"
                 :options="dialogRecipe.selectCatNo" 
-                :style="{width: '130px', marginRight: '10px'}"/>
+                v-model="col.value"
+                :style="{
+                  width: col.width, 
+                  marginRight: col.marginRight}"
+                />
                 <SInput
                   :key="col.label"
-                  v-for="col in useInputModal.filter(cols => ![
+                  v-for="col in useInputModal.filter(cols => ![ 'Category Number',
                   'content', 'Quantity', 'Loss Factor', 'Recipe Cost'].includes(cols.label))"
                   :style="{width: col.width, marginRight: col.marginRight}"
                   :label-text="col.label"
@@ -100,7 +107,8 @@
       </q-card-actions>
     </q-card>
     <DialogChildRecip 
-    :dialogChildRecipe="dialogChildRecipe"/>
+    :dialogChildRecipe="dialogChildRecipe" 
+    />
   </q-dialog>
 </template>
 
@@ -131,202 +139,32 @@ export default defineComponent({
       hide_bottom: false,
       data: [],
       dialogChildRecipe: {
-        openModalChild: false
+        openModalChild: false,
+        dataChildRecipe: [] as any
       },
     });
 
+        //   FETCH_API
+
+    const FETCH_API = async (api, body?) => {
+        const GET_DATA = await $api.inventory.FetchAPIINV(api, body)
+        state.dialogChildRecipe.dataChildRecipe = GET_DATA
+    }
+
+    onMounted(() => {
+      FETCH_API('addRecipePrepare')
+    })
 
     const onClickAN = () => {
       state.dialogChildRecipe.openModalChild = true
     }
 
-    // const StockArticle = async () => {
-    //   state.isLoading = true;
-    //   state.trueandfalse = true;
-    //   state.columns = stockArticle;
-    //   state.class2 = true;
-
-    //   const getData = await Promise.all([
-    //     $api.inventory.FetchAPIINV('addRecipePrepare'),
-    //   ]);
-    //   state.data = getData[0].tLArtikel['t-l-artikel'];
-    //   if (state.data.length < 14) {
-    //     state.isLoading = false;
-    //   }
-    //   if (state.data.length > 14) {
-    //     state.page = true;
-    //     state.isLoading = false;
-    //   }
-    // };
-
-    // const recipe = async () => {
-    //   state.isLoading = true;
-    //   state.trueandfalse = false;
-    //   // state.columns = Recipe;
-    //   state.class2 = false;
-    //   const getData = await Promise.all([
-    //     $api.inventory.FetchAPIINV('addRecipePrepare'),
-    //   ]);
-    //   state.data = getData[0].tHRezept['t-h-rezept'];
-    //   if (state.data.length < 14) {
-    //     state.isLoading = false;
-    //   }
-    //   if (state.data.length > 14) {
-    //     state.page = true;
-    //     state.isLoading = false;
-    //   }
-    // };
-
-    // watch(
-    //   () => state.group,
-    //   (val) => {
-    //     if (val == '1') {
-    //       state.data = [];
-    //       state.page = false;
-    //       StockArticle();
-    //     }
-    //     if (val == '2') {
-    //       state.page = false;
-    //       state.data = [];
-    //       recipe();
-    //     }
-    //   }
-    // );
-
-    // watch(
-    //   () => props.idDialog,
-    //   (idDialog, prev) => {
-    //     if (idDialog && idDialog !== prev) {
-    //       state.idDialog = idDialog;
-    //     }
-    //   }
-    // );
-    // const GET_DATA = async (accountId) => {
-    //   const [getData, getDataNumber] = await Promise.all([
-    //     $api.inventory.FetchAPIINV('chgRecipePrepare', {
-    //       pvILanguage: 1,
-    //       hArtnr: accountId.artnrrezept,
-    //       DESCRIPTION: accountId.bezeich,
-    //     }),
-    //     $api.inventory.FetchAPIINV('chgRecipeRetKatnr', {
-    //       katnr: accountId.kategorie,
-    //     }),
-    //   ]);
-    //   state.recipe.CategoryNumber = getData.katnr;
-    //   state.recipe.RecipeNumber = getData.tHRezept['t-h-rezept'][0].artnrrezept;
-    //   state.recipe.Portion = getData.portion;
-    //   state.recipe.CategoryName = getData.katbezeich;
-    //   state.recipe.Description = getData.hBezeich;
-    //   state.dataTable = getData.sRezlin['s-rezlin'];
-    //   if (getData.sRezlin['s-rezlin'].length > 14) {
-    //     state.pageColumns = true;
-    //   }
-    // };
-
-    // watch(
-    //   () => props.accountId,
-    //   (accountId, prev) => {
-    //     if (accountId && accountId !== prev) {
-    //       GET_DATA(accountId);
-    //     }
-    //   }
-    // );
-
-    // const dialogOnClick = (val) => {
-    //   state.dialogModel = true;
-    //   state.group = '1';
-    // };
-
-    // const saveData = async () => {
-    //   if (state.idDialog == '1') {
-    //   }
-    //   if (state.idDialog == '2') {
-    //     await Promise.all([
-    //       $api.inventory.FetchAPIINV('chgRecipeSave', {
-    //         recId: state.idRecid['h-recid'],
-    //         katnr: state.recipe.CategoryNumber,
-    //         portion: state.recipe.Portion,
-    //         'h-bezeich': state.recipe.Description,
-    //         katbezeich: state.recipe.CategoryName,
-    //       }),
-    //       $api.inventory.FetchAPIINV('checkTime', {
-    //         caseType: 2,
-    //         idTable: state.idRecid['h-recid'],
-    //       }),
-    //     ]);
-    //   }
-    //   emit('save');
-    // };
-
-    // const add = () => {
-    //   $api.inventory.FetchAPIINV('addRecipeSave', {
-    //     sRezlin: {
-    //       's-rezlin': [
-    //         {
-    //           artnr: state.recipe.ArticelNumber,
-    //           bezeich: state.recipe.Description,
-    //           sUnit: state.recipe.Arrticel.herkunft,
-    //           masseinheit: state.recipe.Arrticel.masseinheit,
-    //           menge: state.recipe.Quantity,
-    //           cost: '28.78',
-    //           vkPreis: state.recipe.Arrticel['vk-preis'],
-    //           inhalt: state.recipe.content,
-    //           lostfact: state.recipe.LoodFactor,
-    //           recipeFlag: 'No',
-    //         },
-    //       ],
-    //     },
-    //   });
-    //   setTimeout(() => {
-    //     const data = $api.inventory.FetchAPIINV('addRecipeCreateRezlin', {
-    //       's-artnr': state.recipe.ArticelNumber,
-    //       qty: state.recipe.Quantity,
-    //       'price-type': 0,
-    //       descript: state.recipe.Description,
-    //       inhalt: state.recipe.content,
-    //       lostfact: state.recipe.LoodFactor,
-    //       'vk-preis': state.recipe.Arrticel['vk-preis'],
-    //       recipetype: 0,
-    //     });
-    //   }, 5000);
-    //   $api.inventory.FetchAPIINV('addRecipeCalCost', {
-    //     pArtnr: state.recipe.ArticelNumber,
-    //     menge: state.recipe.Quantity,
-    //   });
-    // };
-    // const onRowClick = (e, val) => {
-    //   state.recipe.ArticelNumber = val.artnr;
-    //   state.recipe.Arrticel = val;
-    // };
-
-    // const confirmDelete = async (val) => {
-    //   state.confirm = true;
-    //   state.idRecid = val;
-    //   state.modify = `Do you really want to delete ${val['h-recid']} ${val.artnr} ${val.bezeich}`;
-    // };
-
-    // const deleteData = async () => {
-    //   await Promise.all([
-    //     $api.inventory.FetchAPIINV('chgRecipeDelete', {
-    //       hRecid: state.idRecid['h-recid'],
-    //     }),
-    //     $api.inventory.FetchAPIINV('checkTime', {
-    //       caseType: 3,
-    //       idTable: state.idRecid['h-recid'],
-    //     }),
-    //   ]);
-    // };
-
     return {
       onClickAN,
       useInputModal,
+      tableHeaders,
       ...toRefs(state),
       pagination: { page: 1, rowsPerPage: 10 },
-
-
-
-      modalAdd,
-      tableHeaders,
     };
   },
 

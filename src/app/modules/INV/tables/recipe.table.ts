@@ -202,8 +202,8 @@ export const Recipe: TableHeader[] = [
   },
   {
     label: 'Description',
-    field: 'bezeich',
-    name: 'bezeich',
+    field: 'bezeich1',
+    name: 'bezeich1',
     align: 'left',
     sortable: false,
   },
@@ -216,8 +216,8 @@ export const Recipe: TableHeader[] = [
   },
   {
     label: 'Category',
-    field: '',
-    name: '',
+    field: 'bezeich2',
+    name: 'bezeich2',
     align: 'left',
     sortable: false,
   },
@@ -227,10 +227,15 @@ const width2 = '190px'
 const right = '10px'
 export const useInputModal = [
     {
+        label: 'Category Number',
+        value: '',
+        width: width1,
+        marginRight: right
+    },
+    {
         label: 'Category Name',
         value: '',
         width: width2,
-        marginRight: right
     },
     {
         label: 'Recipe Number',
@@ -247,7 +252,7 @@ export const useInputModal = [
         label: 'Portion',
         value: '',
         width: width1,
-        marginRight: '200px'
+        marginRight: '200px',
     },
     {
         label: 'content',

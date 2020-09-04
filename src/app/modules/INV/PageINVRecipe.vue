@@ -80,7 +80,8 @@ export default defineComponent({
       data: [] as any,
       dialogRecipe: {
         openDialog: false,
-        selectCatNo: []
+        selectCatNo: [],
+        dataChildRecipe: []
       },
     });
 
@@ -141,8 +142,7 @@ export default defineComponent({
             state.dialogRecipe.selectCatNo = data
             break;
           case 'addRecipePrepare':
-          console.log('sukses', GET_DATA)
-            
+            state.dialogRecipe.dataChildRecipe = GET_DATA
             break;
           default:
               break;
@@ -154,7 +154,6 @@ export default defineComponent({
     onMounted(async () => {
         FETCH_API('recipeListPrepare')
         FETCH_API('recipeSelect')
-        FETCH_API('addRecipePrepare')
     });
 
     const onSearch = (value) => {
