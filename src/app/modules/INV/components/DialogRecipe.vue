@@ -21,17 +21,24 @@
               />
               <SInput
                 :key="col.label"
-                v-for="col in useInputModal.filter(cols => ![ 'Category Number',
-                'content', 'Quantity', 'Loss Factor', 'Recipe Cost'].includes(cols.label))"
+                v-for="col in useInputModal.filter(cols => ![ 
+                'Category Number',
+                'content', 'Quantity', 'Loss Factor', 
+                'Recipe Cost', 'Articel Number'].includes(cols.label))"
                 :style="{width: col.width, marginRight: col.marginRight}"
                 :label-text="col.label"
                 v-model="col.value"
+                :disable="col.disable"
               />
               <SInput
-                :style="{width: '130px', marginRight: '10px'}"
-                label-text='Articel Number'
+                :key="col.label"
+                v-for="col in useInputModal.filter(cols => [
+                'Articel Number'].includes(cols.label))"
+                :style="{width: col.width, marginRight: col.marginRight}"
+                :label-text='col.label'
                 @click="onClickAN"
-                v-model="articelNumber.artnr"
+                v-model="col.value"
+                :disable="col.disable"
               />
               <SInput
                 :key="col.label"
@@ -40,6 +47,7 @@
                 :style="{width: col.width, marginRight: col.marginRight}"
                 :label-text="col.label"
                 v-model="col.value"
+                :disable="col.disable"
               />
             </div>
             <q-btn
@@ -66,18 +74,21 @@
             <template #header-cell-fibukonto="props">
               <q-th :props="props" class="fixed-col left">{{ props.col.label }}</q-th>
             </template>
+
             <template #body-cell-fibukonto="props">
               <q-td :props="props" class="fixed-col left">{{ props.row.fibukonto }}</q-td>
             </template>
+    
             <template #header-cell-actions="props">
               <q-th style="z-index : 4" :props="props" class="fixed-col right">{{ props.col.label }}</q-th>
             </template>
+    
             <template #body-cell-actions="props">
               <q-td :props="props" class="fixed-col right">
                 <q-icon name="mdi-dots-vertical" size="16px">
                   <q-menu auto-close anchor="bottom right" self="top right">
                     <q-list>
-                      <q-item clickable v-ripple>
+                      <q-item clickable v-ripple @click="deleteDataTable(props.row)">
                         <q-item-section>delete</q-item-section>
                       </q-item>
                     </q-list>
@@ -123,11 +134,11 @@ export default defineComponent({
   },
 
   setup(props, { emit, root: { $api } }) {
+    let articelNumber
     const state = reactive({
       isLoading: false,
       hide_bottom: false,
       data: [],
-      articelNumber: {} as any,
       dialogChildRecipe: {
         openModalChild: false,
         dataChildRecipe: [] as any
@@ -151,11 +162,20 @@ export default defineComponent({
 
     const onClickDataAN = (dataRow) => {
       state.dialogChildRecipe.openModalChild = false
-      state.articelNumber = dataRow
+      const data = useInputModal.filter(cols => {
+        return ['Articel Number'].includes(cols.label)
+      })
+      for(const i in data){
+        data[i].value = dataRow.artnr
+      }
+      articelNumber = dataRow
     }
 
     const addDataRecipe = () => {
-      const art = state.articelNumber as any
+      const x = useInputModal
+
+      console.log('sukses', x)
+      const art = articelNumber
       state.data.push({
         artnr: art.artnr,
         bezeich: art.bezeich,
@@ -168,11 +188,31 @@ export default defineComponent({
         lostfact: useInputModal[7].value
       })
       state.hide_bottom = true
+      const data = useInputModal.filter(col => {
+        return [
+        'content', 'Quantity', 
+        'Loss Factor', 'Recipe Cost'
+        ].includes(col.label)
+      })
+      for(const i in data){
+        data[i].value = ''
+      }
+      // state.articelNumber.artnr = ''
+    }
+
+    const deleteDataTable = (dataRow) => {
+      state.data = state.data.filter(items => {
+        return items.artnr !== dataRow.artnr
+      })
+      if (state.data.length == 0) {
+          state.hide_bottom = false
+      }
     }
 
     return {
       onClickAN,
       onClickDataAN,
+      deleteDataTable,
       useInputModal,
       addDataRecipe,
       tableDialogRecipe,

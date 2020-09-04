@@ -219,54 +219,71 @@ const width1 = '130px'
 const width2 = '190px'
 const right = '10px'
 export const useInputModal = [
-    {
-        label: 'Category Number',
-        value: '',
-        width: width1,
-        marginRight: right
+  {
+      label: 'Category Number',
+      value: '',
+      width: width1,
+      marginRight: right,
+      disable: false
     },
     {
-        label: 'Category Name',
-        value: '',
-        width: width2,
+      label: 'Category Name',
+      value: '',
+      width: width2,
+      disable: false
     },
     {
-        label: 'Recipe Number',
-        value: '',
-        width: width1,
-        marginRight: right
+      label: 'Recipe Number',
+      value: '',
+      width: width1,
+      marginRight: right,
+      disable: false
     },
     {
-        label: 'Description',
-        value: '',
-        width: width2,
+      label: 'Description',
+      value: '',
+      width: width2,
+      disable: false
     },
     {
-        label: 'Portion',
-        value: '',
-        width: width1,
-        marginRight: '200px',
+      label: 'Portion',
+      value: '',
+      width: width1,
+      marginRight: '200px',
+      disable: false
     },
     {
-        label: 'content',
-        value: '',
-        width: '90px',
-        marginRight: right
+      label: 'content',
+      value: '',
+      width: '90px',
+      marginRight: right,
+      disable: true
     },
     {
-        label: 'Quantity',
-        value: '',
-        width: '90px',
+      label: 'Quantity',
+      value: '',
+      width: '90px',
+      disable: true
     },
     {
-        label: 'Loss Factor',
-        value: '',
-        width: width1,
-        marginRight: right
+      label: 'Loss Factor',
+      value: '',
+      width: width1,
+      marginRight: right,
+      disable: true
     },
     {
-        label: 'Recipe Cost',
-        value: '',
-        width: width2,
+      label: 'Recipe Cost',
+      value: '',
+      width: width2,
+      disable: true
     },
+    {
+      label: 'Articel Number',
+      value: '',
+      width: width1,
+      marginRight: right,
+      disable: true
+  },
 ]
+

@@ -141,9 +141,6 @@ export default defineComponent({
             const data = mapSelect(GET_DATA)
             state.dialogRecipe.selectCatNo = data
             break;
-          case 'addRecipePrepare':
-            state.dialogRecipe.dataChildRecipe = GET_DATA
-            break;
           default:
               break;
         }
