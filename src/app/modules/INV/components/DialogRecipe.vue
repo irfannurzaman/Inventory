@@ -18,6 +18,7 @@
               :style="{
                 width: col.width, 
                 marginRight: col.marginRight}"
+              :disable="col.disable"
               />
               <SInput
                 :key="col.label"
@@ -48,6 +49,7 @@
                 :label-text="col.label"
                 v-model="col.value"
                 :disable="col.disable"
+                
               />
             </div>
             <q-btn
@@ -128,6 +130,7 @@ import {
   Recipe,
   useInputModal
 } from '../tables/recipe.table';
+import {Notify} from 'quasar'
 export default defineComponent({
   props: {
     dialogRecipe: { type: Object, required: true },
@@ -144,6 +147,27 @@ export default defineComponent({
         dataChildRecipe: [] as any
       },
     });
+
+    const NotifyCreate = (mess, col?) => Notify
+      .create({
+          message: mess,
+          color: col,
+          group: false
+    });
+
+    const filterDataUseInput = (value) => {
+      for(const i in useInputModal.filter(items => [
+        'Category Number', 'Category Name',
+        'Recipe Number', 'Description', 'Portion']
+        .includes(items.label)
+      )){
+        if (value == 'disable') {
+          return useInputModal[i].disable
+        } else {
+          return useInputModal[i].label
+        }
+      }
+    }
 
         //   FETCH_API
 
@@ -171,33 +195,57 @@ export default defineComponent({
       articelNumber = dataRow
     }
 
-    const addDataRecipe = () => {
-      const x = useInputModal
+    // watch(() => state.data,
+    // (data) => {
+    //   console.log('sukses', data)
+    // })
 
-      console.log('sukses', x)
-      const art = articelNumber
+    const addDataRecipe = () => {
+      if (filterDataUseInput('label') && filterDataUseInput('disable')) {
+        for(const i in state.data){
+          console.log('sukses', state.data[i].artnr)
+        }
+        PushDataTableRecipe()
+        for(const i in useInputModal)
+        {
+          if (!useInputModal[i].disable) {
+          useInputModal[i].value = ''
+          }
+        }
+      } else {
+        if (useInputModal[0].value == '' ||
+            useInputModal[1].value == '' || 
+            useInputModal[0].value == null){
+          NotifyCreate('Recipe category / name not yet defined', 'red')
+        } else if (useInputModal[2].value == '' || useInputModal[3].value == '') {
+          NotifyCreate('Recipe number / name not yet defined', 'red')
+        } else {
+            for(const i in useInputModal){
+              if (['Category Number', 'Category Name', 
+                  'Recipe Number', 'Description', 'Portion']
+                  .includes(useInputModal[i].label)) {
+                useInputModal[i].disable = true
+              } else {
+                useInputModal[i].disable = false
+              }
+            }
+          }
+      }
+    }
+
+    const PushDataTableRecipe = () => {
       state.data.push({
-        artnr: art.artnr,
-        bezeich: art.bezeich,
-        's-unit': art.herkunft,
+        artnr: articelNumber.artnr,
+        bezeich: articelNumber.bezeich,
+        's-unit': articelNumber.herkunft,
         menge: useInputModal[6].value,
         cost: '',
-        masseinheit: art.masseinheit,
-        inhalt: art.inhalt,
-        'vk-preis': art['vk-preis'],
+        masseinheit: articelNumber.masseinheit,
+        inhalt: articelNumber.inhalt,
+        'vk-preis': articelNumber['vk-preis'],
         lostfact: useInputModal[7].value
       })
       state.hide_bottom = true
-      const data = useInputModal.filter(col => {
-        return [
-        'content', 'Quantity', 
-        'Loss Factor', 'Recipe Cost'
-        ].includes(col.label)
-      })
-      for(const i in data){
-        data[i].value = ''
-      }
-      // state.articelNumber.artnr = ''
     }
 
     const deleteDataTable = (dataRow) => {
