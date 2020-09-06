@@ -202,14 +202,20 @@ export default defineComponent({
 
     const addDataRecipe = () => {
       if (filterDataUseInput('label') && filterDataUseInput('disable')) {
+        let dataKey
         for(const i in state.data){
-          console.log('sukses', state.data[i].artnr)
+          if (state.data[i].artnr == articelNumber.artnr) {
+            NotifyCreate('Article already selected!', 'red')
+            dataKey = state.data[i].artnr
+          }
         }
-        PushDataTableRecipe()
-        for(const i in useInputModal)
-        {
-          if (!useInputModal[i].disable) {
-          useInputModal[i].value = ''
+        if(dataKey !== articelNumber.artnr){
+          PushDataTableRecipe()
+          for(const i in useInputModal)
+          {
+            if (!useInputModal[i].disable) {
+            useInputModal[i].value = ''
+            }
           }
         }
       } else {
