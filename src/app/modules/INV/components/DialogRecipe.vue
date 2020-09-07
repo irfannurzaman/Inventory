@@ -11,6 +11,7 @@
               <SSelect
               :key="col.label" 
               :label-text="col.label"
+              @input="onValueChange"
               v-for="col in useInputModal.filter(cols => [
               'Category Number'].includes(cols.label))"
               :options="dialogRecipe.selectCatNo" 
@@ -21,35 +22,34 @@
               :disable="col.disable"
               />
               <SInput
-                :key="col.label"
-                v-for="col in useInputModal.filter(cols => ![ 
-                'Category Number',
-                'content', 'Quantity', 'Loss Factor', 
-                'Recipe Cost', 'Articel Number'].includes(cols.label))"
-                :style="{width: col.width, marginRight: col.marginRight}"
-                :label-text="col.label"
-                v-model="col.value"
-                :disable="col.disable"
+              :key="col.label"
+              v-for="col in useInputModal.filter(cols => ![ 
+              'Category Number',
+              'content', 'Quantity', 'Loss Factor', 
+              'Recipe Cost', 'Articel Number'].includes(cols.label))"
+              :style="{width: col.width, marginRight: col.marginRight}"
+              :label-text="col.label"
+              v-model="col.value"
+              :disable="col.disable"
               />
               <SInput
-                :key="col.label"
-                v-for="col in useInputModal.filter(cols => [
-                'Articel Number'].includes(cols.label))"
-                :style="{width: col.width, marginRight: col.marginRight}"
-                :label-text='col.label'
-                @click="onClickAN"
-                v-model="col.value"
-                :disable="col.disable"
+              :key="col.label"
+              v-for="col in useInputModal.filter(cols => [
+              'Articel Number'].includes(cols.label))"
+              :style="{width: col.width, marginRight: col.marginRight}"
+              :label-text='col.label'
+              @click="onClickAN"
+              v-model="col.value"
+              :disable="col.disable"
               />
               <SInput
-                :key="col.label"
-                v-for="col in useInputModal.filter(cols => [
-                'content', 'Quantity', 'Loss Factor', 'Recipe Cost'].includes(cols.label))"
-                :style="{width: col.width, marginRight: col.marginRight}"
-                :label-text="col.label"
-                v-model="col.value"
-                :disable="col.disable"
-                
+              :key="col.label"
+              v-for="col in useInputModal.filter(cols => [
+              'content', 'Quantity', 'Loss Factor', 'Recipe Cost'].includes(cols.label))"
+              :style="{width: col.width, marginRight: col.marginRight}"
+              :label-text="col.label"
+              v-model="col.value"
+              :disable="col.disable"   
               />
             </div>
             <q-btn
@@ -180,25 +180,23 @@ export default defineComponent({
       FETCH_API('addRecipePrepare')
     })
 
+    const onValueChange = () => {
+      const value = useInputModal[0].value as any
+      useInputModal[1].value = value.label
+      .substring(value.label.indexOf('-')+2)
+      useInputModal[0].value = value.value
+    }
+
     const onClickAN = () => {
       state.dialogChildRecipe.openModalChild = true
     }
 
     const onClickDataAN = (dataRow) => {
       state.dialogChildRecipe.openModalChild = false
-      const data = useInputModal.filter(cols => {
-        return ['Articel Number'].includes(cols.label)
-      })
-      for(const i in data){
-        data[i].value = dataRow.artnr
-      }
+      useInputModal[9].value = dataRow.artnr
+      useInputModal[5].value = dataRow.herkunft
       articelNumber = dataRow
     }
-
-    // watch(() => state.data,
-    // (data) => {
-    //   console.log('sukses', data)
-    // })
 
     const addDataRecipe = () => {
       if (filterDataUseInput('label') && filterDataUseInput('disable')) {
@@ -217,9 +215,10 @@ export default defineComponent({
             useInputModal[i].value = ''
             }
           }
+            useInputModal[5].value = ''
         }
       } else {
-        if (useInputModal[0].value == '' ||
+        if (
             useInputModal[1].value == '' || 
             useInputModal[0].value == null){
           NotifyCreate('Recipe category / name not yet defined', 'red')
@@ -228,7 +227,7 @@ export default defineComponent({
         } else {
             for(const i in useInputModal){
               if (['Category Number', 'Category Name', 
-                  'Recipe Number', 'Description', 'Portion']
+                  'Recipe Number', 'Description', 'Portion', 'content']
                   .includes(useInputModal[i].label)) {
                 useInputModal[i].disable = true
               } else {
@@ -265,6 +264,7 @@ export default defineComponent({
 
     return {
       onClickAN,
+      onValueChange,
       onClickDataAN,
       deleteDataTable,
       useInputModal,

@@ -1,9 +1,7 @@
 import { TableHeader } from '~/components/VhpUI/typings';
-// import { getLabels } from '../../../helpers/getLabels.helpers';
 
 export const tableHeaders: TableHeader[] = [
   {
-    // label: getLabels('recipe_number'),
     label: 'recipe_number',
     field: 'artnrrezept',
     name: 'artnrrezept',
@@ -11,7 +9,6 @@ export const tableHeaders: TableHeader[] = [
     sortable: false,
   },
   {
-    // label: getLabels('description'),
     label: 'description',
     field: 'bezeich1',
     name: 'bezeich1',
@@ -19,7 +16,6 @@ export const tableHeaders: TableHeader[] = [
     sortable: false,
 },
 {
-    // label: getLabels('category'),
     label: 'category',
     field: 'kategorie',
     name: 'kategorie',
@@ -41,7 +37,6 @@ export const tableHeaders: TableHeader[] = [
     sortable: false,
 },
 {
-    // label: getLabels('created'),
     label: 'created',
     field: 'datumanlage',
     align: 'left',
@@ -49,7 +44,6 @@ export const tableHeaders: TableHeader[] = [
     sortable: false,
 },
 {
-    // label: getLabels('last_changed'),
     label: 'last_changed',
     field: 'datummod',
     align: 'left',
@@ -65,8 +59,8 @@ export const tableHeaders: TableHeader[] = [
 },
 {
     label: 'Cost Portion',
-    field: 'cost',
-    name: 'cost',
+    field: 'CostPortion',
+    name: 'CostPortion',
     align: 'left',
     sortable: false,
   },
@@ -221,7 +215,7 @@ const right = '10px'
 export const useInputModal = [
   {
       label: 'Category Number',
-      value: '',
+      value: null,
       width: width1,
       marginRight: right,
       disable: false
@@ -247,7 +241,7 @@ export const useInputModal = [
     },
     {
       label: 'Portion',
-      value: '',
+      value: '1',
       width: width1,
       marginRight: '200px',
       disable: false
