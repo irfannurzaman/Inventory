@@ -39,9 +39,9 @@
         <template #body-cell-actions="props">
           <q-td :props="props" class="fixed-col right">
             <q-icon name="mdi-dots-vertical" size="16px">
-              <q-menu auto-close anchor="bottom right" self="top right">
-                <q-list>
-                  <q-item clickable v-ripple>
+              <q-menu :props="props" auto-close anchor="bottom right" self="top right">
+                <q-list :props="props">
+                  <q-item :props="props" @click="onClickEdit(props.row)" clickable v-ripple>
                     <q-item-section>edit</q-item-section>
                   </q-item>
                   <q-item clickable v-ripple>
@@ -55,7 +55,7 @@
       </STable>
     </div>
     <DialogChartOfAccounts
-      :dialogRecipe="dialogRecipe"
+    :dialogRecipe="dialogRecipe"
     />
   </div>
 </template>
@@ -81,7 +81,8 @@ export default defineComponent({
       dialogRecipe: {
         openDialog: false,
         selectCatNo: [],
-        dataChildRecipe: []
+        dataChildRecipe: [],
+        dataEdit : []
       },
     });
 
@@ -128,10 +129,10 @@ export default defineComponent({
     // Fetch API
 
     const FETCH_API = async (api, body?) => {
-        const GET_DATA = await $api.inventory.FetchAPIINV(api, body)
+      const GET_DATA = await $api.inventory.FetchAPIINV(api, body)
         switch (api) {
           case 'recipeListPrepare':
-              charts = DATA_RECIPE(GET_DATA)
+            charts = DATA_RECIPE(GET_DATA)
               state.data = charts
               if (charts.length !== 0) {
                 state.hide_bottom = true
@@ -142,7 +143,8 @@ export default defineComponent({
             state.dialogRecipe.selectCatNo = data
             break;
           default:
-              break;
+            state.dialogRecipe.dataEdit = GET_DATA
+            break;
         }
     }
 
@@ -202,13 +204,13 @@ export default defineComponent({
       state.dialogRecipe.openDialog = true
     }
 
-    // const editItem = (accountId) => {
-    //   state.accountId = accountId;
-    //   state.dialog = true;
-    //   state.idDialog = '2';
-    // };
-
-
+    const onClickEdit = (onRowData) => {
+      state.dialogRecipe.openDialog = true
+      FETCH_API('chgRecipePrepare', {
+        "hArtnr" : onRowData.artnrrezept,
+        "DESCRIPTION" : onRowData.bezeich1
+      })
+    }
     // const deleteData = async () => {
     //   await Promise.all([
     //     $api.inventory.FetchAPIINV('recipeListDelCheck', {
@@ -222,6 +224,7 @@ export default defineComponent({
       ...toRefs(state),
       onSearch,
       onClickDialog,
+      onClickEdit,
       tableHeaders,
       pagination: {
         rowsPerPage: 0,

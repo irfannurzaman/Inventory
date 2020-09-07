@@ -2,21 +2,21 @@ import { TableHeader } from '~/components/VhpUI/typings';
 
 export const tableHeaders: TableHeader[] = [
   {
-    label: 'recipe_number',
+    label: 'Recipe Number',
     field: 'artnrrezept',
     name: 'artnrrezept',
     align: 'left',
     sortable: false,
   },
   {
-    label: 'description',
+    label: 'Description',
     field: 'bezeich1',
     name: 'bezeich1',
     align: 'left',
     sortable: false,
 },
 {
-    label: 'category',
+    label: 'Category',
     field: 'kategorie',
     name: 'kategorie',
     align: 'left',
@@ -37,14 +37,14 @@ export const tableHeaders: TableHeader[] = [
     sortable: false,
 },
 {
-    label: 'created',
+    label: 'Created',
     field: 'datumanlage',
     align: 'left',
     name: 'datumanlage',
     sortable: false,
 },
 {
-    label: 'last_changed',
+    label: 'Last Changed',
     field: 'datummod',
     align: 'left',
     name: 'datummod',

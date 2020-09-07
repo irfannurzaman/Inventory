@@ -180,6 +180,25 @@ export default defineComponent({
       FETCH_API('addRecipePrepare')
     })
 
+    watch(() => props.dialogRecipe.dataEdit,
+    async (dataEdit) => {
+      const x1 = useInputModal.filter(items => {
+        return ['Category Name', 'Recipe Number'].includes(items.label)
+      })
+      for(const i in x1){
+        x1[i].disable = true
+      }
+      const x = await dataEdit
+      useInputModal[0].value = x.katnr
+      useInputModal[1].value = x.katbezeich
+      useInputModal[2].value = x.tHRezept['t-h-rezept'][0].artnrrezept
+      useInputModal[3].value = x.hBezeich 
+      state.data = x.sRezlin['s-rezlin']
+      if(x.sRezlin['s-rezlin'].length !== 0){
+        state.hide_bottom = true
+      }
+    })
+
     const onValueChange = () => {
       const value = useInputModal[0].value as any
       useInputModal[1].value = value.label
