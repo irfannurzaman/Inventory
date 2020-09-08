@@ -191,8 +191,17 @@ export default defineComponent({
 
     onMounted(() => {
       state.columns1 = stockArticle
+    })
+
+    watch(() => props.dialogChildRecipe.openModalChild, 
+    (openModalChild) => {
+      if(openModalChild){
       state.isFetching1 = true
+      state.group = '1'
+      state.data1 = []
+      state.data2 = []
       FETCH_API('addRecipePrepare')
+      }
     })
 
     const onClickSort = () => {
@@ -227,15 +236,23 @@ export default defineComponent({
       watch(() => state.group,
       (group) => {
           if (group == '1') {
-              state.columns1 = stockArticle
+            state.columns2 = []
+            state.data2 = []
+            state.columns1 = stockArticle
+            state.isFetching1 = true
+            setTimeout(() => {
               state.data1 = dataRepetitionArticelNumber(dataRecipe.tLArtikel['t-l-artikel'])
-              state.columns2 = []
-              state.data2 = []
+              state.isFetching1 = false
+            },2000)
           } else {
-              state.columns1 = []
-              state.columns2 = Recipe
-              state.data1 = []
+            state.columns1 = []
+            state.data1 = []
+            state.columns2 = Recipe
+            state.isFetching = true
+            setTimeout(()=> {
+              state.isFetching = false
               state.data2 = dataRepetitionRecipe(dataRecipe.tHRezept['t-h-rezept'])
+            },2000)
           }
       })
 
