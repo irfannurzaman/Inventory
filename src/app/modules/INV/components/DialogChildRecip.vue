@@ -206,30 +206,48 @@ export default defineComponent({
 
     const onClickSort = () => {
       const data = dataRepetitionArticelNumber(dataRecipe.tLArtikel['t-l-artikel'])
-      if (state.filterDes !== '') {        
-          const x = data.filter(items => {
-            return items.bezeich.toLowerCase().includes(state.filterDes.toLowerCase())
-          })
-          if (x.length !== 0) {
-            state.data1 = x
-          } else {
-            NotifyCreate('data not found', 'red')
-          }
-      } else {
-        if (state.sort_value == '1') {
-          state.data1 = data.sort((a, b) => {
-            return a.artnr - b.artnr
-          })
-        } else {
-          state.data1 = data.sort((a, b) => {
-            const ab = a.bezeich.toLowerCase()
-            const bc = b.bezeich.toLowerCase()
-            if(ab < bc){
-              return -1
+      const data1 = dataRepetitionRecipe(dataRecipe.tHRezept['t-h-rezept'])     
+      const y1 = state.group == '1' ? data : data1      
+      const y2 = state.group == '1' ? 'bezeich' :'bezeich1' 
+      const y3 = state.group == '1' ? 'artnr' :'artnrrezept' 
+        if (state.filterDes !== '') {
+            const x = y1.filter(items => {
+              return items[y2].toLowerCase().includes(state.filterDes.toLowerCase())
+            })
+            if (x.length !== 0) {
+              if(state.group == '1'){
+                state.data1 = x
+              } else {
+                state.data2 = x
+              }
+            } else {
+              NotifyCreate('data not found', 'red')
             }
-          })
+        } else {
+          if (state.sort_value == '1') {
+            const x = y1.sort((a, b) => {
+              return a.y3 - b.y3
+            })
+            if(state.group == '1'){
+              state.data1 = x
+            } else {
+              state.data2 = x
+            }
+          } else {
+            const x = y1.sort((a, b) => {
+              const ab = a[y2].toLowerCase()
+              const bc = b[y2].toLowerCase()
+              if(ab < bc){
+                return -1
+              }
+            })
+            if(state.group == '1'){
+              state.data1 = x
+            } else {
+              state.data2 = x
+            }
+          }
         }
-      }
     }
 
 
