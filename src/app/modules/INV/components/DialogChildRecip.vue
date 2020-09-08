@@ -186,7 +186,7 @@ export default defineComponent({
         setTimeout(() => {
           state.data1 = dataRepetitionArticelNumber(dataRecipe.tLArtikel['t-l-artikel'])
           state.isFetching1 = false
-        }, 2000)
+        }, 1000)
     }
 
     onMounted(() => {
