@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="dialogRecipe.openDialog">
+  <q-dialog v-model="dialogRecipe.openDialog" persistent>
     <q-card style="width: 730px; max-width: 90vw;">
       <q-toolbar>
         <q-toolbar-title class="text-white text-weight-medium">Recipe</q-toolbar-title>
@@ -131,6 +131,7 @@ import {
   useInputModal
 } from '../tables/recipe.table';
 import {Notify} from 'quasar'
+import { Console } from 'console';
 export default defineComponent({
   props: {
     dialogRecipe: { type: Object, required: true },
@@ -169,26 +170,9 @@ export default defineComponent({
       }
     }
 
-        //   FETCH_API
-
-    const FETCH_API = async (api, body?) => {
-        const GET_DATA = await $api.inventory.FetchAPIINV(api, body)
-        state.dialogChildRecipe.dataChildRecipe = GET_DATA
-    }
-
-    onMounted(() => {
-      FETCH_API('addRecipePrepare')
-    })
-
     watch(() => props.dialogRecipe.dataEdit,
-    async (dataEdit) => {
-      const x1 = useInputModal.filter(items => {
-        return ['Category Name', 'Recipe Number'].includes(items.label)
-      })
-      for(const i in x1){
-        x1[i].disable = true
-      }
-      const x = await dataEdit
+         (dataEdit) => {
+      const x = dataEdit
       useInputModal[0].value = x.katnr
       useInputModal[1].value = x.katbezeich
       useInputModal[2].value = x.tHRezept['t-h-rezept'][0].artnrrezept

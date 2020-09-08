@@ -68,7 +68,7 @@ import {
   reactive,
   ref,
 } from '@vue/composition-api';
-import { tableHeaders } from './tables/recipe.table';
+import { tableHeaders, useInputModal } from './tables/recipe.table';
 import {Notify} from 'quasar'
 import {DATA_RECIPE} from './utils/params.recipe'
 export default defineComponent({
@@ -206,6 +206,24 @@ export default defineComponent({
 
     const onClickEdit = (onRowData) => {
       state.dialogRecipe.openDialog = true
+      const x1 = useInputModal.filter(items => [
+      'Category Name', 'Recipe Number', 
+      'Category Number', 'Description', 'Portion'].includes(items.label)
+      )
+      for(const i in x1){
+        if (['Category Name', 'Recipe Number'].includes(x1[i].label)){
+          x1[i].disable = true
+          x1[i].value = ''
+        } else {
+          x1[i].disable = false
+          if(!['Portion'].includes(x1[i].label)){
+            x1[i].value = ''
+          } 
+          if (['Category Number'].includes(x1[i].label)) {
+            x1[i].value = null
+          }
+        }
+      }
       FETCH_API('chgRecipePrepare', {
         "hArtnr" : onRowData.artnrrezept,
         "DESCRIPTION" : onRowData.bezeich1

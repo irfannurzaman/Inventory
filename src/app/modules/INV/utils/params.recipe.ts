@@ -24,3 +24,24 @@ export const DATA_RECIPE = (GET_DATA) => {
         result1.substring(result1.indexOf('.'))
     }
 })}
+
+export const dataRepetitionRecipe = (GET_DATA) => {
+    return GET_DATA.map(items => ({
+        artnrrezept: items.artnrrezept,
+        bezeich1: items.bezeich.substring(0, 24),
+        portion: items.portion,
+        bezeich2: items.bezeich.substring(24),
+        selected: false
+      }))
+}
+export const dataRepetitionArticelNumber = (GET_DATA) => {
+    return GET_DATA.map(items => ({
+        artnr: items.artnr,
+        bezeich: items.bezeich,
+        masseinheit: items.masseinheit,
+        inhalt: items.inhalt,
+        herkunft: items.herkunft.replace(/;/g, ''),
+        'vk-preis': formatterMoney(items['vk-preis']),
+        selected: false
+    }))
+}
