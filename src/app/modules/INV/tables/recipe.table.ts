@@ -231,7 +231,7 @@ export const useInputModal = [
       value: '',
       width: width1,
       marginRight: right,
-      disable: false
+      disable: true
     },
     {
       label: 'Description',

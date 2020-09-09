@@ -286,7 +286,7 @@ export default defineComponent({
     }
 
     const onClickDataAN = () => {
-        emit('onClickDataAN', dataChild)
+        emit('onClickDataAN', dataChild, state.group)
     }
 
     return {

@@ -82,7 +82,8 @@ export default defineComponent({
         openDialog: false,
         selectCatNo: [],
         dataChildRecipe: [],
-        dataEdit : []
+        dataEdit : [],
+        max_result: 0
       },
     });
 
@@ -137,6 +138,11 @@ export default defineComponent({
               if (charts.length !== 0) {
                 state.hide_bottom = true
               }
+              let x = []
+              for(const i in charts){
+                x.push(charts[i].artnrrezept)
+              }
+              state.dialogRecipe.max_result = Math.max(...x)
               break;
           case 'recipeSelect':
             const data = mapSelect(GET_DATA)

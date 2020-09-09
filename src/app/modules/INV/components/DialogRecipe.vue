@@ -105,7 +105,7 @@
       <q-separator />
       <q-card-actions align="right" class="bg-white text-teal">
         <q-btn v-close-popup color="primary" flat label="Cancel" />
-        <q-btn color="primary" @click="onClick" label="OK" />
+        <q-btn color="primary" @click="onSaveData" label="OK" />
       </q-card-actions>
     </q-card>
     <DialogChildRecip 
@@ -138,7 +138,7 @@ export default defineComponent({
   },
 
   setup(props, { emit, root: { $api } }) {
-    let articelNumber
+    let articelNumber, resultRecipt, groupRecipe
     const state = reactive({
       isLoading: false,
       hide_bottom: false,
@@ -155,6 +155,23 @@ export default defineComponent({
           color: col,
           group: false
     });
+
+    // FETCH API
+
+    const FETCH_API = async (api, body) => {
+      const GET_DATA = await $api.inventory.FetchAPIINV(api, body)
+        console.log('sukses12', api)
+        console.log('sukses13', body)
+        console.log('sukses14', GET_DATA)
+      switch (api) {
+        case 'addRecipeCreateRezlin':
+          state.data.push(GET_DATA.sRezlin['s-rezlin'][0])
+          state.hide_bottom = true
+          break;
+        default:
+          break;
+      }
+    }
 
     const filterDataUseInput = (value) => {
       for(const i in useInputModal.filter(items => [
@@ -188,69 +205,113 @@ export default defineComponent({
       useInputModal[1].value = value.label
       .substring(value.label.indexOf('-')+2)
       useInputModal[0].value = value.value
+      useInputModal[2].value = props.dialogRecipe.max_result + 1
     }
 
     const onClickAN = () => {
       state.dialogChildRecipe.openModalChild = true
     }
 
-    const onClickDataAN = (dataRow) => {
-      state.dialogChildRecipe.openModalChild = false
-      useInputModal[9].value = dataRow.artnr
-      useInputModal[5].value = dataRow.herkunft
+    const onClickDataAN = (dataRow, group) => {
+      state.dialogChildRecipe.openModalChild = false 
       articelNumber = dataRow
+      groupRecipe = group
+      if (dataRow.artnr) {
+        useInputModal[9].value = dataRow.artnr
+        useInputModal[5].value = dataRow.herkunft
+      } else {
+        const x = dataRow.artnrrezept
+        let result = '0'
+        for (let i = 0; i < 6-x.
+        toString().length; i++) {
+          result += '0'
+        }
+        resultRecipt = `${result}${x}`
+        useInputModal[9].value = `${result}${x}`
+      }
     }
 
     const addDataRecipe = () => {
       if (filterDataUseInput('label') && filterDataUseInput('disable')) {
-        let dataKey
-        for(const i in state.data){
-          if (state.data[i].artnr == articelNumber.artnr) {
-            NotifyCreate('Article already selected!', 'red')
-            dataKey = state.data[i].artnr
-          }
-        }
-        if(dataKey !== articelNumber.artnr){
-          PushDataTableRecipe()
-          for(const i in useInputModal)
-          {
-            if (!useInputModal[i].disable) {
-            useInputModal[i].value = ''
-            }
-          }
-            useInputModal[5].value = ''
-        }
-      } else {
-        if (
-            useInputModal[1].value == '' || 
-            useInputModal[0].value == null){
-          NotifyCreate('Recipe category / name not yet defined', 'red')
-        } else if (useInputModal[2].value == '' || useInputModal[3].value == '') {
-          NotifyCreate('Recipe number / name not yet defined', 'red')
-        } else {
-            for(const i in useInputModal){
-              if (['Category Number', 'Category Name', 
-                  'Recipe Number', 'Description', 'Portion', 'content']
-                  .includes(useInputModal[i].label)) {
-                useInputModal[i].disable = true
-              } else {
-                useInputModal[i].disable = false
+        let dataKey, dataKey1
+          for(const i in state.data){
+            if (articelNumber.artnr) {
+              if (state.data[i].artnr == articelNumber.artnr) {
+                NotifyCreate('Article already selected!', 'red')
+                dataKey = state.data[i].artnr
+              }
+            } else {
+              if (state.data[i].artnr == resultRecipt) {
+                NotifyCreate('Article already selected!', 'red')
+                dataKey1 = state.data[i].artnr
               }
             }
+          }
+          if (articelNumber.artnr) {            
+            if(dataKey !== articelNumber.artnr){
+              const data = {
+                "sArtnr" : articelNumber.artnr,
+                "qty" : useInputModal[6].value,
+                "recipetype" : parseInt(groupRecipe),
+                "price-type" : 0,
+                "DESCRIPT" : articelNumber.bezeich,
+                "inhalt" :  articelNumber.inhalt,
+                "lostfact" : useInputModal[7].value,
+                "vk-preis" : articelNumber['vk-preis']
+              }
+              // PushDataTableRecipe(1)
+              FETCH_API('addRecipeCreateRezlin', data)
+              for(const i in useInputModal)
+              {
+                if (!useInputModal[i].disable) {
+                  useInputModal[i].value = ''
+                }
+              }
+                useInputModal[5].value = ''
+            }
+          } else {
+              if(dataKey1 !== useInputModal[9].value){
+                PushDataTableRecipe(2)
+                for(const i in useInputModal)
+                {
+                  if (!useInputModal[i].disable) {
+                  useInputModal[i].value = ''
+                  }
+                }
+                  useInputModal[5].value = ''
+              }
+          }
+      } else {
+          if (
+            useInputModal[1].value == '' || 
+            useInputModal[0].value == null){
+            NotifyCreate('Recipe category / name not yet defined', 'red')
+          } else if (useInputModal[2].value == '' || useInputModal[3].value == '') {
+            NotifyCreate('Recipe number / name not yet defined', 'red')
+          } else {
+              for(const i in useInputModal){
+                if (['Category Number', 'Category Name', 
+                    'Recipe Number', 'Description', 'Portion', 'content']
+                    .includes(useInputModal[i].label)) {
+                  useInputModal[i].disable = true
+                } else {
+                  useInputModal[i].disable = false
+                }
+              }
           }
       }
     }
 
-    const PushDataTableRecipe = () => {
+    const PushDataTableRecipe = (val) => {
       state.data.push({
-        artnr: articelNumber.artnr,
-        bezeich: articelNumber.bezeich,
-        's-unit': articelNumber.herkunft,
-        menge: useInputModal[6].value,
+        artnr: val == 1? articelNumber.artnr: resultRecipt,
+        bezeich: val == 1? articelNumber.bezeich: articelNumber.bezeich1,
+        's-unit':val ==1? articelNumber.herkunft: '',
+        menge: useInputModal[6].value == ''? '0.00' :useInputModal[6].value + '.00',
         cost: '',
-        masseinheit: articelNumber.masseinheit,
-        inhalt: articelNumber.inhalt,
-        'vk-preis': articelNumber['vk-preis'],
+        masseinheit: val == 1?articelNumber.masseinheit: '',
+        inhalt: val == 1? articelNumber.inhalt: '0.00',
+        'vk-preis': val == 1? articelNumber['vk-preis']: '0.00',
         lostfact: useInputModal[7].value
       })
       state.hide_bottom = true
@@ -265,8 +326,23 @@ export default defineComponent({
       }
     }
 
+    const onSaveData = () => {
+      const data = {
+        "hArtnr" : useInputModal[2].value,
+        "hBezeich": useInputModal[3].value,
+        "katbezeich": useInputModal[1].value,
+        "katnr" :useInputModal[0].value,
+        "portion" : useInputModal[4].value,
+        "sRezlin": {
+          's-Rezlin': state.data
+		    }
+      }
+      FETCH_API('addRecipeSave', data)
+    }
+
     return {
       onClickAN,
+      onSaveData,
       onValueChange,
       onClickDataAN,
       deleteDataTable,
