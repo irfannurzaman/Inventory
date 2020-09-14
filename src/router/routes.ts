@@ -30,9 +30,6 @@ const routes: RouteConfig[] = [
   },
 ];
 
-console.log('sukses1', routes)
-console.log('sukses1', SUBMODULE_LIST)
-
 // Always leave this as last one
 if (process.env.MODE !== 'ssr') {
   routes.push({

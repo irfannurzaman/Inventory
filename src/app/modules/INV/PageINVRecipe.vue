@@ -44,7 +44,7 @@
                   <q-item :props="props" @click="onClickEdit(props.row)" clickable v-ripple>
                     <q-item-section>edit</q-item-section>
                   </q-item>
-                  <q-item clickable v-ripple>
+                  <q-item @click="deleteDataRow(props.row)" clickable v-ripple>
                     <q-item-section>delete</q-item-section>
                   </q-item>
                 </q-list>
@@ -56,6 +56,7 @@
     </div>
     <DialogChartOfAccounts
     :dialogRecipe="dialogRecipe"
+    @addRecipeSave="addRecipeSave"
     />
   </div>
 </template>
@@ -71,9 +72,10 @@ import {
 import { tableHeaders, useInputModal } from './tables/recipe.table';
 import {Notify} from 'quasar'
 import {DATA_RECIPE} from './utils/params.recipe'
+import { Console } from 'console';
 export default defineComponent({
   setup(_, { root: { $api } }) {
-    let charts;
+    let charts, dataRowDelete
     const state = reactive({
       isFetching: false,
       hide_bottom: false,
@@ -83,16 +85,44 @@ export default defineComponent({
         selectCatNo: [],
         dataChildRecipe: [],
         dataEdit : [],
-        max_result: 0
+        max_result: 0,
+        KEY_MODAL : 0
       },
     });
 
     // Helpers 
 
-    const NotifyCreate = (mess, col?) => Notify
+    const NotifyCreate = (mess, col?, type?) => Notify
       .create({
           message: mess,
           color: col,
+          type: type,
+    });
+    const NotifyCreate1 = (mess, col?, type?) => Notify
+      .create({
+          message: mess,
+          position: 'center',
+          type: type,
+          timeout: 0,
+          actions: [
+            { label: 'Cencel', color: 'white', handler: () => { 
+              state.dialogRecipe.openDialog = false} }
+          ],
+    });
+    const NotifyCreate2 = (mess, col?) => Notify
+      .create({
+        message: mess,
+        color: 'primary',
+        timeout: 0,
+        position: 'center',
+        actions: [
+          { label: 'Cencel', color: 'white', handler: () => { /* ... */ } },
+          { label: 'Ok', color: 'white', handler: () => {
+            FETCH_API('recipeListDelete', {
+              tHRezeptArtnrrezept: dataRowDelete.artnrrezept
+            })
+          }}
+        ]
     });
     const sortData = (charts, params) => {
       if (params == 'bezeich1') {
@@ -130,7 +160,10 @@ export default defineComponent({
     // Fetch API
 
     const FETCH_API = async (api, body?) => {
-      const GET_DATA = await $api.inventory.FetchAPIINV(api, body)
+      const [GET_DATA, GET_COMMON] = await Promise.all([
+        $api.inventory.FetchAPIINV(api, body), 
+        $api.inventory.FetchCommon(api, body)
+        ])
         switch (api) {
           case 'recipeListPrepare':
             charts = DATA_RECIPE(GET_DATA)
@@ -148,8 +181,29 @@ export default defineComponent({
             const data = mapSelect(GET_DATA)
             state.dialogRecipe.selectCatNo = data
             break;
+          case 'checkPermission':
+            if (GET_COMMON.zugriff) {
+              DELETE_DATA(true)
+            } else {
+              NotifyCreate('Access denied, can not delete', 'red')
+            }
+            break;
+          case 'recipeListDelCheck':
+            if (GET_DATA.msgStr == '') {
+              NotifyCreate2('Do you really want to delete + no recipe + description', 'red')
+            } else {
+              NotifyCreate(GET_DATA.msgStr, 'red')
+            }
+          break;
+          case 'recipeListDelete':
+            DELETE_DATA(false)
+            break;
           default:
-            state.dialogRecipe.dataEdit = GET_DATA
+            if (GET_DATA.hBezeich !== '' && GET_DATA.katnr !== 0) {
+                state.dialogRecipe.dataEdit = GET_DATA
+            } else {
+              NotifyCreate1('this record is being modifed by oher user', 'white', 'negative')
+            }
             break;
         }
     }
@@ -160,6 +214,18 @@ export default defineComponent({
         FETCH_API('recipeListPrepare')
         FETCH_API('recipeSelect')
     });
+
+    const DELETE_DATA = (val) => {
+      if (val) {        
+        const data = {
+          pvILanguage: 1,
+          tHRezeptArtnrrezept: dataRowDelete.artnrrezept
+        }
+        FETCH_API('recipeListDelCheck', data)
+      } else {
+        FETCH_API('recipeListPrepare')
+      }
+    }
 
     const onSearch = (value) => {
       if (value.group == '1') {
@@ -206,35 +272,62 @@ export default defineComponent({
       }
     };
 
+    const x1 = useInputModal.filter(items => ['Category Number',
+    'Description', 'Category Name'].includes(items.label)
+    )
+    const x2 = useInputModal.filter(items => [
+    'Articel Number', 'Recipe Cost',
+    'Loss Factor', 'Quantity', 'content',
+    'Recipe Number'].includes(items.label)
+    )
+
+    const xii = () => {
+      for(const i in x1){
+        x1[i].disable = false
+        x1[i].value = ''
+      }
+      for(const i in x2){
+        x2[i].disable = true
+        x2[i].value = ''
+      }
+      useInputModal[4].value = '1'
+      useInputModal[4].disable = false
+    }
+
     const onClickDialog = () => {
       state.dialogRecipe.openDialog = true
+      state.dialogRecipe.KEY_MODAL = 1
+      xii()
     }
 
     const onClickEdit = (onRowData) => {
       state.dialogRecipe.openDialog = true
-      const x1 = useInputModal.filter(items => [
-      'Category Name', 'Recipe Number', 
-      'Category Number', 'Description', 'Portion'].includes(items.label)
-      )
-      for(const i in x1){
-        if (['Category Name', 'Recipe Number'].includes(x1[i].label)){
-          x1[i].disable = true
-          x1[i].value = ''
-        } else {
-          x1[i].disable = false
-          if(!['Portion'].includes(x1[i].label)){
-            x1[i].value = ''
-          } 
-          if (['Category Number'].includes(x1[i].label)) {
-            x1[i].value = null
-          }
-        }
-      }
+      state.dialogRecipe.KEY_MODAL = 2
+      xii()
       FETCH_API('chgRecipePrepare', {
         "hArtnr" : onRowData.artnrrezept,
-        "DESCRIPTION" : onRowData.bezeich1
+        "DESCRIPTION" : onRowData.bezeich1.trim()
       })
     }
+
+    const addRecipeSave = () => {
+      FETCH_API('recipeListPrepare')
+      setTimeout(() => {
+        state.dialogRecipe.openDialog = false
+      },2000)
+    }
+
+    const deleteDataRow = (dataRow) => {
+      const data = {
+        "expectedNr": "2",
+		    "arrayNr": "53",
+		    "userInit": "01"
+      }
+      dataRowDelete = dataRow
+      FETCH_API('checkPermission', data)
+    }
+
+
     // const deleteData = async () => {
     //   await Promise.all([
     //     $api.inventory.FetchAPIINV('recipeListDelCheck', {
@@ -247,7 +340,9 @@ export default defineComponent({
     return {
       ...toRefs(state),
       onSearch,
+      addRecipeSave,
       onClickDialog,
+      deleteDataRow,
       onClickEdit,
       tableHeaders,
       pagination: {

@@ -8,10 +8,11 @@
         <div class="row">
           <div class="col">
             <div class="row">
+              <div v-if="displacement">
               <SSelect
               :key="col.label" 
               :label-text="col.label"
-              @input="onValueChange"
+              @input="onValueChange(true)"
               v-for="col in useInputModal.filter(cols => [
               'Category Number'].includes(cols.label))"
               :options="dialogRecipe.selectCatNo" 
@@ -21,6 +22,19 @@
                 marginRight: col.marginRight}"
               :disable="col.disable"
               />
+              </div>
+              <div v-else>
+              <SInput
+              :key="col.label"
+              v-for="col in useInputModal.filter(cols => [
+              'Category Number'].includes(cols.label))"
+              :style="{width: col.width, marginRight: col.marginRight}"
+              :label-text='col.label'
+              v-model="col.value"
+              :disable="col.disable"
+              @blur="onValueChange(false)"
+              />
+              </div>
               <SInput
               :key="col.label"
               v-for="col in useInputModal.filter(cols => ![ 
@@ -31,7 +45,17 @@
               :label-text="col.label"
               v-model="col.value"
               :disable="col.disable"
-              />
+              >
+              <template v-if="col.label == 'Category Name' " v-slot:append>
+                <q-btn v-if="displacement" @click="displacement_input" round dense flat icon="mdi-plus" />
+                <q-btn v-else @click="back_input" round dense flat icon="mdi-minus" />
+                <q-tooltip 
+                  :offset="[10, 10]">
+                  <span v-if="displacement">Add New Category</span>
+                  <span v-else>Back New Category</span>
+                </q-tooltip>
+              </template>
+              </SInput>
               <SInput
               :key="col.label"
               v-for="col in useInputModal.filter(cols => [
@@ -64,48 +88,64 @@
             />
           </div>
           <div class="col">
-           <STable
-           :loading="isLoading"
-           :columns="tableDialogRecipe"
-           :data="data"
-           :rows-per-page-options="[0]"
-           :pagination.sync="pagination"
-           :hide-bottom="hide_bottom"
-           class="table-accounting-date"
-           >
-            <template #header-cell-fibukonto="props">
-              <q-th :props="props" class="fixed-col left">{{ props.col.label }}</q-th>
-            </template>
-
-            <template #body-cell-fibukonto="props">
-              <q-td :props="props" class="fixed-col left">{{ props.row.fibukonto }}</q-td>
-            </template>
-    
-            <template #header-cell-actions="props">
-              <q-th style="z-index : 4" :props="props" class="fixed-col right">{{ props.col.label }}</q-th>
-            </template>
-    
-            <template #body-cell-actions="props">
-              <q-td :props="props" class="fixed-col right">
-                <q-icon name="mdi-dots-vertical" size="16px">
-                  <q-menu auto-close anchor="bottom right" self="top right">
-                    <q-list>
-                      <q-item clickable v-ripple @click="deleteDataTable(props.row)">
-                        <q-item-section>delete</q-item-section>
-                      </q-item>
-                    </q-list>
-                  </q-menu>
-                </q-icon>
-              </q-td>
-            </template>
-           </STable>
+             <STable
+             :loading="isLoading"
+             :columns="tableDialogRecipe"
+             :data="data"
+             :rows-per-page-options="[0]"
+             :pagination.sync="pagination"
+             :hide-bottom="hide_bottom"
+             class="table-accounting-date"
+             >
+              <template #header-cell-fibukonto="props">
+                <q-th :props="props" class="fixed-col left">{{ props.col.label }}</q-th>
+              </template>
+  
+              <template #body-cell-fibukonto="props">
+                <q-td :props="props" class="fixed-col left">{{ props.row.fibukonto }}</q-td>
+              </template>
+      
+              <template #header-cell-actions="props">
+                <q-th style="z-index : 4" :props="props" class="fixed-col right">{{ props.col.label }}</q-th>
+              </template>
+      
+              <template #body-cell-actions="props">
+                <q-td :props="props" class="fixed-col right">
+                  <q-icon name="mdi-dots-vertical" size="16px">
+                    <q-menu auto-close anchor="bottom right" self="top right">
+                      <q-list>
+                        <q-item clickable v-ripple @click="deleteDataTable(props.row)">
+                          <q-item-section>delete</q-item-section>
+                        </q-item>
+                      </q-list>
+                    </q-menu>
+                  </q-icon>
+                </q-td>
+              </template>
+             </STable>
+          </div>
+        </div>
+        <div class="column items-end">
+          <div style="marginTop: -20px; width: 100px; marginLeft: -30px" class="col row">
+            <div class="col">
+              <span>Total:</span>
+            </div>
+            <div class="col">
+              <span>{{resulTable}}</span>
+            </div>
           </div>
         </div>
       </q-card-section>
       <q-separator />
       <q-card-actions align="right" class="bg-white text-teal">
-        <q-btn v-close-popup color="primary" flat label="Cancel" />
-        <q-btn color="primary" @click="onSaveData" label="OK" />
+        <q-btn @click="onCancel" v-close-popup color="primary" flat label="Cancel" />
+        <q-btn 
+        :loading="loading2"
+        :disable="disableButtonSave" 
+        color="primary" 
+        @click="onSaveData" 
+        label="OK">
+        </q-btn>
       </q-card-actions>
     </q-card>
     <DialogChildRecip 
@@ -118,11 +158,11 @@
 <script lang="ts">
 import {
   defineComponent,
-  onMounted,
   computed,
   reactive,
   watch,
-  toRefs,
+  toRefs, 
+  onMounted
 } from '@vue/composition-api';
 import {
   tableDialogRecipe,
@@ -138,37 +178,72 @@ export default defineComponent({
   },
 
   setup(props, { emit, root: { $api } }) {
-    let articelNumber, resultRecipt, groupRecipe
+    let articelNumber, resultRecipt, groupRecipe, xi, useFetchDataEdit
     const state = reactive({
       isLoading: false,
+      loading2: false,
       hide_bottom: false,
+      disableButtonSave: true,
       data: [],
+      resulTable: '0',
+      displacement: true, 
       dialogChildRecipe: {
         openModalChild: false,
         dataChildRecipe: [] as any
       },
     });
 
-    const NotifyCreate = (mess, col?) => Notify
+    const NotifyCreate = (mess, col?, type?) => Notify
       .create({
           message: mess,
           color: col,
-          group: false
+          group: false,
+          type: type
     });
+
+    const SAVE_MODIFY = () => {
+      const params = {
+        recId: useFetchDataEdit.tHRezept['t-h-rezept'][0]['rec-id'],
+        katnr: Number(useInputModal[0].value) ,
+        portion: useInputModal[4].value,
+        hBezeich: useInputModal[3].value,
+        katbezeich: useInputModal[1].value
+      }
+      FETCH_API('chgRecipeSave', params)
+    }
 
     // FETCH API
 
     const FETCH_API = async (api, body) => {
-      const GET_DATA = await $api.inventory.FetchAPIINV(api, body)
-        console.log('sukses12', api)
-        console.log('sukses13', body)
-        console.log('sukses14', GET_DATA)
+      const [GET_DATA, GET_COMMON] = await Promise.all([
+        $api.inventory.FetchAPIINV(api, body),
+        $api.inventory.FetchCommon(api, body)
+      ])
       switch (api) {
         case 'addRecipeCreateRezlin':
           state.data.push(GET_DATA.sRezlin['s-rezlin'][0])
           state.hide_bottom = true
+          if (state.hide_bottom) {
+            state.disableButtonSave = false
+          }
+          break;
+          case 'chgRecipeSave':
+            if (GET_DATA.outputOkFlag) {
+              state.loading2 = true
+              setTimeout(()=> {       
+              state.data = []
+              state.loading2 = false
+              NotifyCreate('sukses', 'positive', 'positive')
+              },2400)
+              emit('addRecipeSave')
+            }
           break;
         default:
+          if (GET_COMMON.flagOk) {
+            SAVE_MODIFY()
+          } else {
+            NotifyCreate('our Time was expired. :U” (enter) “Another user has modified this record', 'red')
+          }
           break;
       }
     }
@@ -188,25 +263,59 @@ export default defineComponent({
     }
 
     watch(() => props.dialogRecipe.dataEdit,
-         (dataEdit) => {
-      const x = dataEdit
-      useInputModal[0].value = x.katnr
-      useInputModal[1].value = x.katbezeich
-      useInputModal[2].value = x.tHRezept['t-h-rezept'][0].artnrrezept
-      useInputModal[3].value = x.hBezeich 
-      state.data = x.sRezlin['s-rezlin']
-      if(x.sRezlin['s-rezlin'].length !== 0){
+      (dataEdit) => {
+      useFetchDataEdit = dataEdit
+      state.displacement = true
+      state.disableButtonSave = false
+      useInputModal[0].value = useFetchDataEdit.katnr
+      useInputModal[1].value = useFetchDataEdit.katbezeich
+      useInputModal[2].value = useFetchDataEdit.tHRezept['t-h-rezept'][0].artnrrezept
+      useInputModal[3].value = useFetchDataEdit.hBezeich 
+      state.data = useFetchDataEdit.sRezlin['s-rezlin']
+      if(useFetchDataEdit.sRezlin['s-rezlin'].length !== 0){
         state.hide_bottom = true
       }
     })
 
-    const onValueChange = () => {
-      const value = useInputModal[0].value as any
-      useInputModal[1].value = value.label
-      .substring(value.label.indexOf('-')+2)
-      useInputModal[0].value = value.value
-      useInputModal[2].value = props.dialogRecipe.max_result + 1
-    }
+    watch(() => state.data,
+    (data) => {
+      let y = 0
+      for(const i in data){
+        const x = data[i].cost
+        .toString()
+        .substring(0, data[i].cost
+        .toString()
+        .indexOf('.')+3)
+        .replace('.', '')
+        y += Number(x)
+      }
+        const xi = y.toString()
+        const z = xi.substring(0, xi.length -2)
+        state.resulTable = `${z}.${xi.substring(xi.length -2)}`
+    })
+
+    watch(() => props.dialogRecipe.openDialog,
+    (open) => {
+      state.displacement = true
+    })
+
+    const onValueChange = (e) => {
+      if (e) {        
+        const value = useInputModal[0].value as any
+        useInputModal[1].value = value.label
+        .substring(value.label.indexOf('-')+2)
+        useInputModal[0].value = value.value
+        useInputModal[2].value = props.dialogRecipe.max_result + 1
+      } else {
+        if (props.dialogRecipe.KEY_MODAL == 1) {
+          if (useInputModal[0].value !== '') {
+            useInputModal[2].value = props.dialogRecipe.max_result + 1
+          } else {
+            useInputModal[2].value = ''
+          }
+        }
+      }
+    } 
 
     const onClickAN = () => {
       state.dialogChildRecipe.openModalChild = true
@@ -220,14 +329,14 @@ export default defineComponent({
         useInputModal[9].value = dataRow.artnr
         useInputModal[5].value = dataRow.herkunft
       } else {
-        const x = dataRow.artnrrezept
+        xi = dataRow.artnrrezept
         let result = '0'
-        for (let i = 0; i < 6-x.
+        for (let i = 0; i < 6-xi.
         toString().length; i++) {
           result += '0'
         }
-        resultRecipt = `${result}${x}`
-        useInputModal[9].value = `${result}${x}`
+        resultRecipt = `${result}${xi}`
+        useInputModal[9].value = `${result}${xi}`
       }
     }
 
@@ -241,7 +350,7 @@ export default defineComponent({
                 dataKey = state.data[i].artnr
               }
             } else {
-              if (state.data[i].artnr == resultRecipt) {
+              if (state.data[i].artnr == xi) {
                 NotifyCreate('Article already selected!', 'red')
                 dataKey1 = state.data[i].artnr
               }
@@ -259,7 +368,6 @@ export default defineComponent({
                 "lostfact" : useInputModal[7].value,
                 "vk-preis" : articelNumber['vk-preis']
               }
-              // PushDataTableRecipe(1)
               FETCH_API('addRecipeCreateRezlin', data)
               for(const i in useInputModal)
               {
@@ -270,8 +378,18 @@ export default defineComponent({
                 useInputModal[5].value = ''
             }
           } else {
-              if(dataKey1 !== useInputModal[9].value){
-                PushDataTableRecipe(2)
+            if(dataKey1 !== useInputModal[9].value){
+              const data = {
+                "sArtnr" : xi,
+                  "DESCRIPT" : articelNumber.bezeich1,
+                  "qty" : useInputModal[6].value,
+                  "recipetype" : parseInt(groupRecipe),
+                  "price-type" : 0,
+                  "inhalt" :  '',
+                  "lostfact" : useInputModal[7].value,
+                  "vk-preis" : ''
+                }
+              FETCH_API('addRecipeCreateRezlin', data)
                 for(const i in useInputModal)
                 {
                   if (!useInputModal[i].disable) {
@@ -302,21 +420,6 @@ export default defineComponent({
       }
     }
 
-    const PushDataTableRecipe = (val) => {
-      state.data.push({
-        artnr: val == 1? articelNumber.artnr: resultRecipt,
-        bezeich: val == 1? articelNumber.bezeich: articelNumber.bezeich1,
-        's-unit':val ==1? articelNumber.herkunft: '',
-        menge: useInputModal[6].value == ''? '0.00' :useInputModal[6].value + '.00',
-        cost: '',
-        masseinheit: val == 1?articelNumber.masseinheit: '',
-        inhalt: val == 1? articelNumber.inhalt: '0.00',
-        'vk-preis': val == 1? articelNumber['vk-preis']: '0.00',
-        lostfact: useInputModal[7].value
-      })
-      state.hide_bottom = true
-    }
-
     const deleteDataTable = (dataRow) => {
       state.data = state.data.filter(items => {
         return items.artnr !== dataRow.artnr
@@ -327,30 +430,73 @@ export default defineComponent({
     }
 
     const onSaveData = () => {
-      const data = {
-        "hArtnr" : useInputModal[2].value,
-        "hBezeich": useInputModal[3].value,
-        "katbezeich": useInputModal[1].value,
-        "katnr" :useInputModal[0].value,
-        "portion" : useInputModal[4].value,
-        "sRezlin": {
-          's-Rezlin': state.data
-		    }
+      if (props.dialogRecipe.KEY_MODAL == 1) {      
+        const data = {
+          "hArtnr" : useInputModal[2].value,
+          "hBezeich": useInputModal[3].value,
+          "katbezeich": useInputModal[1].value,
+          "katnr" :Number(useInputModal[0].value),
+          "portion" : useInputModal[4].value,
+          "sRezlin": {
+            's-Rezlin': state.data
+          }
+        }
+        FETCH_API('addRecipeSave', data)
+        state.loading2 = true
+        setTimeout(()=> {       
+        state.data = []
+        state.loading2 = false
+        NotifyCreate('sukses', 'positive', 'positive')
+        },2400)
+        emit('addRecipeSave')
+      } else {
+        const params = {
+          caseType: 3,
+          idTable: useInputModal[2].value,
+          idTable1: '?',
+          nameTable: 'h-rezept',
+          initTime2: useFetchDataEdit.initTime,
+          initDate2: useFetchDataEdit.initDate
+        }
+        FETCH_API('checkTime', params)
       }
-      FETCH_API('addRecipeSave', data)
+    }
+
+    const onCancel = () => {
+      state.data = []
+    }
+
+    const displacement_input = () => {
+      state.displacement = false
+      if (props.dialogRecipe.KEY_MODAL == 1) {        
+        useInputModal[0].value = ''
+        useInputModal[1].value = ''
+        useInputModal[2].value = ''
+      }
+    }
+    const back_input = () => {
+      state.displacement = true
+      if (props.dialogRecipe.KEY_MODAL == 1) {        
+        useInputModal[0].value =''
+        useInputModal[1].value =''
+        useInputModal[2].value =''
+      }
     }
 
     return {
       onClickAN,
       onSaveData,
+      onCancel,
       onValueChange,
+      displacement_input,
+      back_input,
       onClickDataAN,
       deleteDataTable,
       useInputModal,
       addDataRecipe,
       tableDialogRecipe,
       ...toRefs(state),
-      pagination: { page: 1, rowsPerPage: 10 },
+      pagination: { page: 1, rowsPerPage: 0 },
     };
   },
 
@@ -363,6 +509,21 @@ export default defineComponent({
 <style lang="scss" scoped>
 .q-toolbar {
   background: $primary-grad;
+}
+
+::v-deep .table-accounting-date {
+  max-height: 45vh;
+
+  thead tr {
+    th {
+      position: sticky;
+      z-index: 3;
+    }
+
+    &:first-child th {
+      top: 0;
+    }
+  }
 }
 
 </style>
