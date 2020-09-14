@@ -190,7 +190,7 @@ export default defineComponent({
             break;
           case 'recipeListDelCheck':
             if (GET_DATA.msgStr == '') {
-              NotifyCreate2('Do you really want to delete + no recipe + description', 'red')
+              NotifyCreate2(`Do you really want to delete ${dataRowDelete.artnrrezept} ${dataRowDelete.bezeich1}`)
             } else {
               NotifyCreate(GET_DATA.msgStr, 'red')
             }
@@ -210,7 +210,7 @@ export default defineComponent({
 
     // Function
 
-    onMounted(async () => {
+    onMounted(() => {
         FETCH_API('recipeListPrepare')
         FETCH_API('recipeSelect')
     });
