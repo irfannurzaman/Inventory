@@ -20,10 +20,10 @@
         class="table-rooming-list"
         :columns="roomTableHeaders"
         :data="data"
-        :loading="loading"
         :rows-per-page-options="[0]"
         :pagination.sync="pagination"
         :hide-bottom="hide_bottom"
+        :loading="loading"
         row-key="index"
         virtual-scroll
         :virtual-scroll-item-size="29"
@@ -175,6 +175,7 @@ export default defineComponent({
       for(const i in dataTable){
         state.data.push(dataTable[i])
       }
+        console.log('sukses', state.data.length)
       if(state.data.length !== 0){
         state.hide_bottom = true
       }
@@ -183,8 +184,10 @@ export default defineComponent({
     }
     const onScroll = ({to, ref}) => {
       const lastIndex = state.data.length - 1
-        if (!state.loading && to === lastIndex && state.data.length !== 0) {
+        if (!state.loading && to === lastIndex && lastIndex > 27 ) {
+          if (lastIndex > 56) {
             state.loading = true
+          }
             const data = {
               "sorttype ": value.shape,
               "lastArt" : value.description == ''? " ": value.description,
