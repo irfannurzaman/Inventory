@@ -95,37 +95,12 @@
                     :key="input.label"
                     v-for="input in UnitPrice.filter(x => ![
                     'Delivery Unit', 'Mess Unit', 'Recipe Unit', 'Recipe Number'].includes(x.label))"
-                    :style="{width: input.width, marginTop: }"
+                    :style="{width: input.width, marginTop: input.top }"
                     label-text="Language.Delivery_unit_conv"
                     :v-model="input.value"
                     unmasked-value
                     placeholder="30"
                   />
-                    <!-- <SInput
-                      style="width: 150px;"
-                      label-text="Language.Delivery_unit_conv"
-                      v-model="unitPrice.UnitConvertion2"
-                      unmasked-value
-                      placeholder="100"
-                    />
-                    <SInput
-                      style="width: 150px;"
-                      label-text="Actual Purchase Price"
-                      v-model="unitPrice.unitPrice1"
-                      unmasked-value
-                    />
-                    <SInput
-                      style="width: 150px;"
-                      label-text="Last Price"
-                      v-model="unitPrice.unitPrice2"
-                      unmasked-value
-                    />
-                    <SInput
-                      style="width: 150px;"
-                      label-text="Average Purchase Price"
-                      v-model="unitPrice.unitPrice3"
-                      unmasked-value
-                    /> -->
                 </div>
               </q-tab-panel>
 
