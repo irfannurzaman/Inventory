@@ -1,15 +1,17 @@
 <template>
   <q-dialog v-model="dialogModel">
-    <q-card style="width: 1000px; max-width: 90vw; height: 500px">
+    <q-card style="width: 950px; max-width: 90vw; height: 500px">
       <q-toolbar>
-        <q-toolbar-title class="text-white text-weight-medium">New</q-toolbar-title>
+        <q-toolbar-title class="text-white text-weight-medium">Add</q-toolbar-title>
       </q-toolbar>
       <!-- <q-form @submit="inputan"> -->
       <q-card-section style="height: auto;">
-          <SInput class="inputName" label-text="Name" v-model="inputName" />
-        <q-splitter v-model="splitterModel" style="height: 300px;">
+        <SInput class="inputName" label-text="Name" v-model="inputName" />
+        <q-splitter v-model="splitterModel" style="height: 270px;">
           <template v-slot:before>
-            <q-tabs v-model="tab" vertical active-color="primary" indicator-color="primary">
+            <q-tabs v-model="tab" 
+            vertical active-color="primary" 
+            indicator-color="primary">
               <q-tab name="category" label="Category" />
               <q-tab name="UnitPrice" label="Unit & Price" />
               <q-tab name="Additional" label="Additional Info" />
@@ -25,32 +27,41 @@
               transition-prev="jump-up"
               transition-next="jump-up"
             >
-              <q-tab-panel style="margintop: -10px;" name="category">
+              <q-tab-panel name="category" style="marginTop: -20px">
                 <SSelect
-                  label-text="Main Group"
-                  :options="subMain.main"
-                  v-model="subMain.mains"
-                  style="width: 200px;"
+                  :key="input.label"
+                  v-for="input in inputCategory"
+                  :label-text="input.label"
+                  :options="input.options"
+                  :v-model="input.value"
+                  :style="{width: input.width}"
                   @input="clickMainGrup"
                 />
-                <SSelect
-                  label-text="Sub Group"
-                  :options="subGroup.sub"
-                  v-model="subGroup.subs"
-                  style="width: 200px;"
-                  @input="clickSubGroup"
-                />
-                <div class="articel-number">
-                  <span>{{ totalBudget }}</span>
-                  <span>0</span>
+                <div class="row">
+                  <SInput
+                  :key="input.label" 
+                  v-for="input in inputArticelNumber" 
+                  :label-text="input.label"
+                  :style="{width: input.width, marginTop: input.mt}" 
+                  :v-model="input.value" 
+                  disable>              
+                    <span v-if="input.label == ''"
+                    style="marginLeft: -10px" 
+                    class="mdi mdi-refresh mdi-flip-h mdi-24px mdi-spin"/>
+                  </SInput>
                 </div>
                 <q-btn-toggle
+                  class="my-custom-toggle"
                   v-model="model"
-                  class="buttonToggle"
+                  size="sm"
+                  no-caps
+                  unelevated
                   toggle-color="primary"
+                  color="white"
+                  text-color="black"
                   :options="[
-                    { label: 'No', value: 'no' },
-                    { label: 'Yes', value: 'yes' },
+                    {label: 'No', value: 'no'},
+                    {label: 'Yes', value: 'yes'}
                   ]"
                 />
               </q-tab-panel>
@@ -58,54 +69,45 @@
               <q-tab-panel name="UnitPrice" style="marginTop: -20px">
                 <div class="q-gutter-md row items-start">
                   <SInput
-                    style="width: 150px;"
-                    label-text="Delivery Unit"
-                    v-model="unitPrice.DeliveryUnit"
-                    unmasked-value
-                    placeholder="Box"
-                  />
-                  <SInput
-                    style="width: 150px;"
-                    label-text="Mess Unit"
-                    v-model="unitPrice.messUnit"
-                    unmasked-value
-                    placeholder="Kg"
-                  />
-                  <SInput
-                    style="width: 150px;"
-                    label-text="Recipe Unit"
-                    v-model="unitPrice.recipeUnit"
-                    unmasked-value
-                    placeholder="Gram"
-                  />
-                  <SInput
-                    style="width: 150px;"
-                    label-text="Recipe Number"
-                    v-model="modelRecipeNumber"
-                    unmasked-value
-                    @click.prevent="modalRecipe"
+                    :key="input.label"
+                    v-for="input in UnitPrice.filter(x => [
+                    'Delivery Unit', 'Mess Unit', 'Recipe Unit', 'Recipe Number'].includes(x.label))"
+                    :style="{width: input.width}"
+                    :label-text="input.label"
+                    v-model="input.value"
+                    :placeholder="input.placeholder"
+                     @click="modalRecipe(input.onClick)"
                   />
                 </div>
                 <div class="row">
-                  <div class="col">
-                    Unit Convertion
-                    <SInput
-                      style="width: 150px;"
-                      label-text="Language.Delivery_unit_conv"
-                      v-model="unitPrice.UnitConvertion1"
-                      unmasked-value
-                      placeholder="30"
-                    />
-                    <SInput
+                  <span 
+                  :key="i.label" 
+                  v-for="i in inputUnitPrice" 
+                  id="judul" 
+                  :style="{marginRight: i.mR}"> {{i.label}}
+                   <span class="mdi mdi-alert-circle-outline mdi-18px">
+                      <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
+                        <div :key="val" v-for="val in i.value">{{val}}<br/></div> 
+                      </q-tooltip>
+                   </span>
+                  </span>
+                  <SInput
+                    :key="input.label"
+                    v-for="input in UnitPrice.filter(x => ![
+                    'Delivery Unit', 'Mess Unit', 'Recipe Unit', 'Recipe Number'].includes(x.label))"
+                    :style="{width: input.width, marginTop: }"
+                    label-text="Language.Delivery_unit_conv"
+                    :v-model="input.value"
+                    unmasked-value
+                    placeholder="30"
+                  />
+                    <!-- <SInput
                       style="width: 150px;"
                       label-text="Language.Delivery_unit_conv"
                       v-model="unitPrice.UnitConvertion2"
                       unmasked-value
                       placeholder="100"
                     />
-                  </div>
-                  <div class="col">
-                    Unit Price
                     <SInput
                       style="width: 150px;"
                       label-text="Actual Purchase Price"
@@ -123,8 +125,7 @@
                       label-text="Average Purchase Price"
                       v-model="unitPrice.unitPrice3"
                       unmasked-value
-                    />
-                  </div>
+                    /> -->
                 </div>
               </q-tab-panel>
 
@@ -150,7 +151,6 @@
                 />
                 <q-btn-toggle
                   v-model="model2"
-                  style="buttonToggle"
                   toggle-color="primary"
                   :options="[
                     { label: 'No', value: 'no' },
@@ -183,26 +183,11 @@ import {
   toRefs,
   watch,
 } from '@vue/composition-api';
-import { mapGroup } from '~/app/helpers/mapSelectItems.helpers';
-interface State {
-  isLoading: boolean;
-  totalBudget: number;
-  columns: { month: string; actual: string; budget: string }[];
-  splitterModel: number;
-  model: any;
-  model2: any;
-  tab: string;
-  subMain: any;
-  subGroup: any;
-  article: any;
-  dialogArticel: boolean;
-  dialogAcount: boolean;
-  modelRecipeNumber: any;
-  modelAccountNumber: any;
-  inputName: any;
-  unitPrice: any;
-  additional: any;
-}
+import {inputCategory, 
+inputArticelNumber, 
+UnitPrice, 
+inputUnitPrice} from '../tables/stockItem.table'
+
 export default defineComponent({
   props: {
     dialog: { type: Boolean, required: true },
@@ -212,7 +197,7 @@ export default defineComponent({
   },
 
   setup(props, { emit, root: { $api } }) {
-    const state = reactive<State>({
+    const state = reactive({
       isLoading: false,
       splitterModel: 20,
       totalBudget: 0,
@@ -392,8 +377,12 @@ export default defineComponent({
     function onRowAccount(row) {
       state.modelAccountNumber = row.fibukonto;
     }
-    function modalRecipe() {
-      state.dialogArticel = true;
+    
+    function modalRecipe(value) {
+      console.log('sukses', value)
+      if (value) {
+        state.dialogArticel = true;
+      }
     }
     function dialogAcountNumber() {
       state.dialogAcount = true;
@@ -408,6 +397,10 @@ export default defineComponent({
     };
 
     return {
+      inputCategory,
+      inputArticelNumber,
+      UnitPrice,
+      inputUnitPrice,
       onDialog1,
       saveData,
       onDialog2,
@@ -435,33 +428,20 @@ export default defineComponent({
   background: $primary-grad;
 }
 
-.buttonToggle {
-  margin-top: 15px;
+.my-custom-toggle {
+  border: 1px solid #027be3;
+  height: 30px;
 }
 
 .inputName {
   width: 500px;
-  margin-left: 217px;
-}
-.articel-number {
-  border-radius: 4px;
-  border: 1px solid $primary;
-  width: 200px;
-  span {
-    display: inline-block;
-    padding: 3px 25px;
+  margin-left: 200px;
 
-    &:first-child {
-      border-right: 1px solid $primary;
-    }
-
-    &:last-child {
-      flex: 1;
-      text-align: right;
-    }
-  }
 }
 
+#judul {
+ font-weight: bold
+}
 .UnitConvertion {
   border-radius: 4px;
   border: 1px solid $primary;

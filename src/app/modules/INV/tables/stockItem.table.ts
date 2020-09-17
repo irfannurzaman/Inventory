@@ -87,3 +87,112 @@ export const roomTableHeaders: TableHeader[] = [
   },
   { name: 'actions', field: 'actions' },
 ];
+
+export const inputCategory = [
+  {
+    label: 'Main Group',
+    value: '',
+    width: '200px',
+    options: []
+  },
+  {
+    label: 'Sub Group',
+    value: '',
+    width: '200px',
+    options: []
+  },
+]
+
+export const inputArticelNumber = [
+  {
+    label: 'Articel Number',
+    value: '',
+    width: '100px',
+    mt : '-10px'
+  },
+  {
+    label: '',
+    value: '',
+    width: '30px',
+    mt: '15px'
+  },
+]
+
+export const UnitPrice = [
+  {
+    label: 'Delivery Unit',
+    value: '',
+    width: '150px',
+    placeholder: 'box'
+  },
+  {
+    label: 'Mess Unit',
+    value: '',
+    width: '150px',
+    placeholder: 'kg'
+  },
+  {
+    label: 'Recipe Unit',
+    value: '',
+    width: '150px',
+    placeholder: 'gram'
+  },
+  {
+    label: 'Recipe Number',
+    value: '',
+    width: '150px',
+    placeholder: '',
+    onClick: true
+  },
+  {
+    label: 'Delivery unit conv',
+    value: '',
+    width: '150px',
+    top: '10px',
+    placeholder: '',
+  },
+  {
+    label: 'Actual Purchase Price',
+    value: '',
+    width: '150px',
+    top: '10px',
+    placeholder: '',
+  },
+  {
+    label: 'Delivery unit conv',
+    value: '',
+    width: '150px',
+    placeholder: '',
+  },
+  {
+    label: 'Last Price',
+    value: '',
+    width: '150px',
+    placeholder: '',
+  },
+  {
+    label: 'Average Purchase Price',
+    value: '',
+    width: '150px',
+    placeholder: '',
+  },
+]
+export const inputUnitPrice = [
+  {
+    label: 'Unit Convertion',
+    mR: '200px',
+    value: ['Conversion Info', 
+    'Conversion section will be available', 
+    'after all configurations field at unit',
+    'tab has been fulfill' ] as any
+  },
+  {
+    label: 'Unit Price',
+    mR: '200px',
+    value: ['Conversion Info', 
+    'Conversion section will be available', 
+    'after all configurations field at unit',
+    'tab has been fulfill' ] as any
+  },
+
+]
