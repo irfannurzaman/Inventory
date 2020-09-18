@@ -222,7 +222,7 @@ export const useInputModal = [
     },
     {
       label: 'Category Name',
-      value: '',
+      value: null,
       width: width2,
       disable: false
     },

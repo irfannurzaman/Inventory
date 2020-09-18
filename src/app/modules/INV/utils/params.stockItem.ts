@@ -25,3 +25,12 @@ export const data_table = (data) => {
         return data
     })
 }
+
+export const dataArticel = (data) => {
+    return data.map(items => ({
+        artnrrezept: items.artnrrezept,
+        bezeich: items.bezeich.substring(0, 24),
+        kategorie: items.kategorie,
+        selected: false
+    }))
+}

@@ -5,7 +5,7 @@
     </q-drawer>
     <div class="q-pa-lg">
       <div class="q-mb-md">
-        <q-btn @click="dialog = true" flat round class="q-mr-lg">
+        <q-btn @click="onDialog" flat round class="q-mr-lg">
           <img :src="require('~/app/icons/Icon-Add.svg')" height="30" />
         </q-btn>
         <q-btn flat round class="q-mr-lg">
@@ -113,11 +113,7 @@
       </STable>
     </div>
     <DialogChartOfAccounts
-      :dialog="dialog"
-      @onDialog="onDialog"
-      :selected="prepare"
-      :accountId="accountId"
-      :getAccountnumber="valueData"
+      :dataDialog="dataDialog"
     />
     <q-dialog v-model="confirm" persistent>
       <q-card>
@@ -147,7 +143,7 @@ import {
   ref,
 } from '@vue/composition-api';
 import { mapWithBezeich } from '~/app/helpers/mapSelectItems.helpers';
-import { roomTableHeaders } from './tables/stockItem.table';
+import { roomTableHeaders, inputCategory } from './tables/stockItem.table';
 import { data_table } from './utils/params.stockItem'
 import {scroll} from 'quasar'
 
@@ -159,34 +155,58 @@ export default defineComponent({
       data: [],
       loading: false,
       nextPage: 2,
-      dialog: false,
       hide_bottom: false,
       confirm: false,
-      prepare: '',
       trueandfalse: false,
-      valueData: 0,
-      accountId: '',
       getAccountnumber: '',
+      dataDialog : {
+        prepare: '',
+        accountId: '',
+        dialog: false,
+        valueData: 0,  
+      }
     });
+
+    // helpers
+
+    const MAP_DATA = (data) => {
+      return data.map(items => ({
+        label : `${items.endkum} - ${items.bezeich}`,
+        value: items.endkum
+      }))
+    }
 
     // FETCH API
     const FETCH_API = async (api, body?) => {
       const GET_DATA = await $api.inventory.FetchAPIINV(api, body)
-      lastArt1 = GET_DATA.firstArtnr
-      const data = GET_DATA.tLArtikel['t-l-artikel']
-      setTimeout(() => {
-      state.loading = false
-      const dataTable =  data_table(data)
-      for(const i in dataTable){
-        state.data.push(dataTable[i])
+      switch (api) {
+        case 'getInvArticleList':          
+          lastArt1 = GET_DATA.firstArtnr
+          const data = GET_DATA.tLArtikel['t-l-artikel']
+          setTimeout(() => {
+            state.loading = false
+            const dataTable =  data_table(data)
+            for(const i in dataTable){
+              state.data.push(dataTable[i])
+            }
+            if(state.data.length !== 0){
+              state.hide_bottom = true
+            }
+          }, 2000)
+          break;
+        case 'getInvMainGroup':
+          const x = GET_DATA.tLHauptgrp['t-l-hauptgrp']
+          inputCategory[0].options = MAP_DATA(x)
+          break;
+        default:
+          break;
       }
-        console.log('sukses', state.data.length)
-      if(state.data.length !== 0){
-        state.hide_bottom = true
-      }
-      }, 2000)
-      
     }
+
+    onMounted(() => {
+      FETCH_API('getInvMainGroup')
+    })
+
     const onScroll = ({to, ref}) => {
       const lastIndex = state.data.length - 1
         if (!state.loading && to === lastIndex && lastIndex > 27 ) {
@@ -217,7 +237,7 @@ export default defineComponent({
     };
 
     const onDialog = (val) => {
-      state.dialog = val;
+      state.dataDialog.dialog = true;
     };
 
     function deleteData() {
@@ -225,7 +245,7 @@ export default defineComponent({
         const GET_DATA = await Promise.all([
           $api.inventory.apiStockItem('delInvArticle', {
             pvILanguage: 1,
-            artnr: state.valueData,
+            artnr: state.dataDialog.valueData,
           }),
         ]);
       }
@@ -233,12 +253,12 @@ export default defineComponent({
     }
 
     const onRowClick = (p, val) => {
-      state.valueData = val.artnr;
+      state.dataDialog.valueData = val.artnr;
     };
 
     function editItem(accountId) {
-      state.dialog = true;
-      state.accountId = accountId;
+      state.dataDialog.dialog = true;
+      state.dataDialog.accountId = accountId;
     }
 
     function getDefaultColumns(cols) {

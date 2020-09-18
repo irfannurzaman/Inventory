@@ -1,19 +1,22 @@
 <template>
-  <q-dialog v-model="dialogModel">
-    <q-card style="width: 950px; max-width: 90vw; height: 500px">
+  <q-dialog v-model="dataDialog.dialog" persistent position="top">
+    <q-card style="width: 950px; max-width: 90vw; height: 470px">
       <q-toolbar>
         <q-toolbar-title class="text-white text-weight-medium">Add</q-toolbar-title>
       </q-toolbar>
-      <!-- <q-form @submit="inputan"> -->
       <q-card-section style="height: auto;">
         <SInput class="inputName" label-text="Name" v-model="inputName" />
-        <q-splitter v-model="splitterModel" style="height: 270px;">
+        <q-splitter v-model="splitterModel" style="height: 290px;">
           <template v-slot:before>
             <q-tabs v-model="tab" 
             vertical active-color="primary" 
+            align="right"
+            dense
+            no-caps
+            inline-label
             indicator-color="primary">
-              <q-tab name="category" label="Category" />
-              <q-tab name="UnitPrice" label="Unit & Price" />
+              <q-tab align="right" name="category" label="Category" />
+              <q-tab align="right" name="UnitPrice" label="Unit & Price" />
               <q-tab name="Additional" label="Additional Info" />
             </q-tabs>
           </template>
@@ -30,25 +33,33 @@
               <q-tab-panel name="category" style="marginTop: -20px">
                 <SSelect
                   :key="input.label"
-                  v-for="input in inputCategory"
+                  v-for="input in inputCategory.filter(x => [
+                  'Main Group', 'Sub Group'].includes(x.label))"
                   :label-text="input.label"
                   :options="input.options"
-                  :v-model="input.value"
+                  v-model="input.value"
                   :style="{width: input.width}"
-                  @input="clickMainGrup"
+                  @input="clickMainGrup(input)"
                 />
                 <div class="row">
                   <SInput
                   :key="input.label" 
-                  v-for="input in inputArticelNumber" 
+                  v-for="input in inputCategory.filter(x => ![
+                  'Main Group', 'Sub Group'].includes(x.label))"
                   :label-text="input.label"
-                  :style="{width: input.width, marginTop: input.mt}" 
-                  :v-model="input.value" 
+                  :style="{width: input.width, marginTop: input.mt, marginLet: input.mL}" 
+                  v-model="input.value" 
                   disable>              
-                    <span v-if="input.label == ''"
+                    <div v-if="input.label == ''"
                     style="marginLeft: -10px" 
-                    class="mdi mdi-refresh mdi-flip-h mdi-24px mdi-spin"/>
+                    >
+                      <span v-if="result" class="mdi mdi-refresh mdi-24px mdi-spin"/>
+                      <span v-else class="mdi mdi-refresh mdi-24px"/>
+                    </div>
                   </SInput>
+                </div>
+                <div>
+                Daily Market
                 </div>
                 <q-btn-toggle
                   class="my-custom-toggle"
@@ -67,69 +78,80 @@
               </q-tab-panel>
 
               <q-tab-panel name="UnitPrice" style="marginTop: -20px">
-                <div class="q-gutter-md row items-start">
+                <div class="row">
                   <SInput
+                    bg-radius="red"
                     :key="input.label"
                     v-for="input in UnitPrice.filter(x => [
-                    'Delivery Unit', 'Mess Unit', 'Recipe Unit', 'Recipe Number'].includes(x.label))"
-                    :style="{width: input.width}"
+                    'Delivery Unit', 'Mess Unit',
+                    'Recipe Unit', 'Recipe Number'].includes(x.label))"
+                    :style="{width: input.width, marginRight: input.mR}"
                     :label-text="input.label"
                     v-model="input.value"
                     :placeholder="input.placeholder"
-                     @click="modalRecipe(input.onClick)"
+                    @click="modalRecipe(input.onClick)"
+                    @keyup="valueDelUnit(input)"
                   />
-                </div>
-                <div class="row">
                   <span 
                   :key="i.label" 
                   v-for="i in inputUnitPrice" 
                   id="judul" 
                   :style="{marginRight: i.mR}"> {{i.label}}
                    <span class="mdi mdi-alert-circle-outline mdi-18px">
-                      <q-tooltip anchor="center right" self="center left" :offset="[10, 10]">
+                      <q-tooltip anchor="center right" self="top left" :offset="[10, 10]">
                         <div :key="val" v-for="val in i.value">{{val}}<br/></div> 
                       </q-tooltip>
                    </span>
                   </span>
+                  <div 
+                  :key="input.label" 
+                   v-for="input in UnitPrice.filter(x => ![
+                  'Delivery Unit', 'Mess Unit', 
+                  'Recipe Unit', 'Recipe Number'].includes(x.label))">
+                  <div :style="{marginTop: input.top, marginLeft: input.mL1}">{{input.label}}</div>                    
                   <SInput
                     :key="input.label"
-                    v-for="input in UnitPrice.filter(x => ![
-                    'Delivery Unit', 'Mess Unit', 'Recipe Unit', 'Recipe Number'].includes(x.label))"
-                    :style="{width: input.width, marginTop: input.top }"
-                    label-text="Language.Delivery_unit_conv"
-                    :v-model="input.value"
-                    unmasked-value
-                    placeholder="30"
+                    :style="
+                    {
+                    width: input.width, 
+                    marginRight: input.mR,
+                    marginLeft: input.mL
+                    }"
+                    v-model="input.value"
+                    :placeholder="input.placeholder"
+                    :disable="input.disable"
                   />
+                    </div>
                 </div>
               </q-tab-panel>
 
-              <q-tab-panel name="Additional">
+              <q-tab-panel name="Additional" style="marginTop: -20px">
+                <div class="row">
                 <SInput
-                  style="width: 150px;"
-                  label-text="Min Stock"
-                  v-model="additional.minStock"
-                  unmasked-value
+                 :key="input.label"
+                 v-for="input in inputAdditional"
+                 :style="{
+                 width: input.width,
+                 marginRight: input.mR,
+                 marginLeft: input.mL,
+                 marginTop: input.mT}"
+                 :label-text="input.label"
+                 v-model="input.value"
+                 :disable="input.disable"
                 />
-                <SInput
-                  style="width: 150px;"
-                  label-text="Max Stock"
-                  v-model="additional.maxStock"
-                  unmasked-value
-                />
-                <SInput
-                  style="width: 150px;"
-                  label-text="Account Number For Direct Issue Outgoing"
-                  v-model="modelAccountNumber"
-                  unmasked-value
-                  @click.prevent="dialogAcountNumber"
-                />
+                </div>
                 <q-btn-toggle
-                  v-model="model2"
+                  class="my-custom-toggle"
+                  v-model="model"
+                  size="sm"
+                  no-caps
+                  unelevated
                   toggle-color="primary"
+                  color="white"
+                  text-color="black"
                   :options="[
-                    { label: 'No', value: 'no' },
-                    { label: 'Yes', value: 'yes' },
+                    {label: 'No', value: 'no'},
+                    {label: 'Yes', value: 'yes'}
                   ]"
                 />
               </q-tab-panel>
@@ -137,15 +159,14 @@
           </template>
         </q-splitter>
       </q-card-section>
-      <q-separator />
+      <q-separator style="marginTop: -18px" />
       <q-card-actions align="right" class="bg-white text-teal">
-        <q-btn flat label="Cancel" v-close-popup />
-        <q-btn @click="saveData" flat label="OK" v-close-popup />
+        <q-btn size="sm" flat label="Cancel" v-close-popup />
+        <q-btn size="sm" @click="saveData" color="primary" label="OK" v-close-popup />
       </q-card-actions>
-      <!-- </q-form> -->
     </q-card>
-    <ModalRecipeNumber :dialog="dialogArticel" @onDialog="onDialog1" @onRowRecipe="onRowRecipe" />
-    <dialogAcountNumber :dialog="dialogAcount" @onDialog="onDialog2" @onRowAccount="onRowAccount" />
+    <ModalRecipeNumber :dataRecipe="dataRecipe"/>
+    <!-- <dialogAcountNumber :dialog="dialogAcount" @onDialog="onDialog2" @onRowAccount="onRowAccount" /> -->
   </q-dialog>
 </template>
 
@@ -158,17 +179,16 @@ import {
   toRefs,
   watch,
 } from '@vue/composition-api';
-import {inputCategory, 
-inputArticelNumber, 
+import {
+inputCategory, 
+inputAdditional,
 UnitPrice, 
 inputUnitPrice} from '../tables/stockItem.table'
+import {dataArticel} from '../utils/params.stockItem'
 
 export default defineComponent({
   props: {
-    dialog: { type: Boolean, required: true },
-    selected: { type: [String, Number, Object], required: true },
-    accountId: { type: Object, required: true },
-    getAccountnumber: { type: Object, required: true },
+    dataDialog: {type: Object, required: true},
   },
 
   setup(props, { emit, root: { $api } }) {
@@ -182,210 +202,318 @@ export default defineComponent({
       tab: 'category',
       modelRecipeNumber: '',
       modelAccountNumber: '',
-      subMain: {
-        main: '',
-        mains: '',
-      },
-      subGroup: {
-        sub: '',
-        subs: '',
-      },
-
-      unitPrice: {
-        DeliveryUnit: '',
-        messUnit: '',
-        recipeUnit: '',
-        UnitConvertion1: '',
-        UnitConvertion2: '',
-        unitPrice1: '',
-        unitPrice2: '',
-        unitPrice3: '',
-      },
-      additional: {
-        minStock: '',
-        maxStock: '',
-      },
-      article: '',
-      dialogArticel: false,
-      dialogAcount: false,
       inputName: '',
-    });
-    const dialogModel = computed({
-      get: () => props.dialog,
-      set: (val) => {
-        emit('onDialog', val);
-      },
-    });
-
-    onMounted(async () => {
-      const dataGrop = await Promise.all([
-        $api.inventory.apiStockItem('getInvMainGroup'),
-      ]);
-
-      state.subMain.main = mapGroup(
-        dataGrop[0].tLHauptgrp['t-l-hauptgrp'],
-        'bezeich',
-        'endkum'
-      );
+      result: false,
+      dataRecipe: {
+        data: [],
+        dialogArticel: false,
+        hide_bottom: false
+      }
     });
 
-    const GET_DATA = async (val) => {
-      const GET_DATA = await Promise.all([
-        $api.inventory.apiStockItem('chgInvArticlePrepare', {
-          artnr: props.getAccountnumber,
-          changed: 'no',
-        }),
-      ]);
-      state.inputName = GET_DATA[0].lArt['l-art'][0].bezeich;
-      state.subMain.mains = GET_DATA[0].endBezeich;
-      state.subGroup.subs = GET_DATA[0].zwBezeich;
-      state.totalBudget = GET_DATA[0].lArt['l-art'][0].artnr;
-      state.unitPrice.DeliveryUnit = GET_DATA[0].lArt['l-art'][0].traubensorte;
-      state.unitPrice.messUnit = GET_DATA[0].lArt['l-art'][0].masseinheit;
-      state.unitPrice.recipeUnit = GET_DATA[0].sUnit;
-      state.modelRecipeNumber = '000,000';
-      //
-      state.unitPrice.unitPrice1 = GET_DATA[0].lArt['l-art'][0]['ek-aktuell'];
-      state.unitPrice.unitPrice2 = GET_DATA[0].lArt['l-art'][0]['ek-letzter'];
-      state.unitPrice.unitPrice3 = GET_DATA[0].lArt['l-art'][0]['vk-preis'];
-    };
+    // helper
+    const MAP_DATA = (data) => {
+      return data.map(items => ({
+        label: `${items.zwkum} - ${items.bezeich}`,
+        value: items.zwkum
+      }))
+    }
 
-    watch(
-      () => props.accountId,
-      (accountId, prev) => {
-        if (accountId && accountId !== prev) {
-          GET_DATA(accountId);
+    const FETCH_API = async (api, body) => {
+      const GET_DATA = await $api.inventory.FetchAPIINV(api, body)
+      switch (api) {
+        case 'getInvSubGroup':
+          const data = GET_DATA.szwkumList['szwkum-list']
+          inputCategory[1].options = MAP_DATA(data)
+          break;
+        case 'getInvArtNo':
+          setTimeout(() => {
+            inputCategory[2].value = GET_DATA.outInt
+            state.tab = 'UnitPrice'
+            if(inputCategory[2].value !== null){
+              state.result = false
+            }
+          }, 2000)
+          break;
+        case 'getInvRecipe':
+          const x = GET_DATA.tHRezept['t-h-rezept']
+          state.dataRecipe.data = dataArticel(x)
+          if (state.dataRecipe.data.length !== 0) {
+            state.dataRecipe.hide_bottom = true
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+    onMounted(()=> {
+      FETCH_API('getInvRecipe', {
+          caseType: 2,
+          int1: '',
+          int2: '',
+          int3: '',
+          char1: '',
+          date1: '',
+      })
+    })
+
+    const valueDelUnit = (value) => {
+      if (value.label == 'Delivery Unit') {
+        const x = UnitPrice.filter(x => ['1'].includes(x.key))
+        for(const i of x){
+          if (i.label !== '') {
+            if(value.value !== ''){
+               i.value = `1 ${value.value}=`
+            } else {
+              i.value = '1 Unit='
+            }
+          } else {
+            if(value.value !== ''){
+              i.value = `@ ${value.value}`
+            } else {
+              i.value = `@ Unit`
+            }
+          }
+        }
+      } 
+      if(value.label == 'Mess Unit'){
+        const x = UnitPrice.filter(x => ['2'].includes(x.key))
+        for(const i of x){
+          if (i.label !== '') {
+            if (value.value !== '') {
+              i.value = `1 ${value.value}=`
+            } else {
+              i.value = '1 Mess='
+            }
+          } else {
+            if(value.value !== ''){
+              i.value = value.value
+            } else {
+              i.value = 'Mess'
+            }
+          }
+        }
+      } 
+      if(value.label == 'Recipe Unit'){
+        if (value.value !== '') {
+          UnitPrice[11].value = value.value
+        } else {
+          UnitPrice[11].value = 'Recipe'
         }
       }
-    );
-
-    function clickMainGrup() {
-      async function asyncCall() {
-        const dataSub = await Promise.all([
-          $api.inventory.apiStockItem('getInvSubGroup', {
-            mainNr: state.subMain.mains.value,
-          }),
-        ]);
-
-        state.subGroup.sub = mapGroup(
-          dataSub[0].szwkumList['szwkum-list'],
-          'bezeich',
-          'zwkum'
-        );
-      }
-      asyncCall();
+      const xi = UnitPrice.filter(x => [
+      'Delivery Unit', 'Mess Unit', 'Recipe Unit'
+      ].includes(x.label))
+      const xii = UnitPrice.filter(x => ['1'].includes(x.off))
+        if (
+        xi[0].value !== '' && 
+        xi[1].value !== '' && 
+        xi[2].value !== ''){
+          for(const i of xii)
+          {
+            i.disable = false
+          }
+        } else {
+          for(const i of xii)
+          {
+            i.disable = true
+          }
+        }
     }
 
-    function clickSubGroup() {
-      async function asyncCall() {
-        const dataArticle = await Promise.all([
-          $api.inventory.apiStockItem('getInvArtNo', {
-            pvILanguage: 1, // buat default value = 1
-            caseType: 2, // buat default value = 2
-            inpInt: state.subGroup.subs.value, // zwkum - SUB GROUP
-            inpInt2: state.subMain.mains.value, // endkum - MAIN GROUP
-            inpChar: ' ', // buat default value = “ ”
-          }),
-        ]);
-
-        state.totalBudget = dataArticle[0].outInt;
-      }
-      asyncCall();
-    }
-
-    function saveData() {
-      async function saveData() {
-        const saveData = await Promise.all([
-          $api.inventory.apiStockItem('addInvArticle', {
-            artnr: state.totalBudget.toString(),
-            bezAend: state.model,
-            dmlArt: state.model2,
-            fibukonto: state.modelAccountNumber,
-            pvILanguage: 1,
-            sUnit: state.unitPrice.recipeUnit,
-            lArt: {
-              'l-art': [
-                {
-                  alkoholgrad: undefined,
-                  anzverbrauch: state.additional.maxStock,
-                  artnr: state.totalBudget.toString(),
-                  betriebsnr: state.modelRecipeNumber,
-                  bezeich: state.inputName,
-                  'ek-aktuell': state.unitPrice.unitPrice1,
-                  'ek-letzter': state.unitPrice.unitPrice2,
-                  endkum: state.subMain.mains.value,
-                  fibukonto: state.modelAccountNumber,
-                  inhalt: state.unitPrice.UnitConvertion2,
-                  jahrgang: state.model == 'no' ? '0' : '1',
-                  'lief-artnr[1]': '?',
-                  'lief-artnr[2]': '?',
-                  'lief-artnr[3]': '?',
-                  'lief-einheit': state.unitPrice.UnitConvertion1,
-                  'lief-nr1': '?',
-                  'lief-nr2': '?',
-                  'lief-nr3': '?',
-                  masseinheit: state.unitPrice.messUnit,
-                  'min-bestand': state.additional.minStock,
-                  traubensorte: state.unitPrice.DeliveryUnit,
-                  'vk-preis': state.unitPrice.unitPrice3,
-                  'wert-verbrau': '0',
-                  zwkum: state.subGroup.subs.value,
-                },
-              ],
-            },
-            ttArtnr: {
-              'tt-artnr': [],
-            },
-            ttContent: {
-              'tt-content': [],
-            },
-          }),
-        ]);
-      }
-      saveData();
-    }
-
-    function onRowRecipe(row) {
-      state.modelRecipeNumber = row.kategorie;
-    }
-
-    function onRowAccount(row) {
-      state.modelAccountNumber = row.fibukonto;
-    }
-    
-    function modalRecipe(value) {
-      console.log('sukses', value)
+    const modalRecipe = (value) => {
       if (value) {
-        state.dialogArticel = true;
+        state.dataRecipe.dialogArticel = true;
       }
     }
-    function dialogAcountNumber() {
-      state.dialogAcount = true;
+
+    const clickMainGrup = (value) => {
+      if (value.label == 'Main Group') {
+        FETCH_API('getInvSubGroup', {
+          mainNr: value.value.value
+        })
+      } else {
+        state.result = true
+        const x = {
+          pvILanguage: 1,
+            caseType: 2, 
+            inpInt: inputCategory[0].value.value, 
+            inpInt2: inputCategory[1].value.value,
+            inpChar: ' ',
+          }
+        FETCH_API('getInvArtNo', x)
+
+      }
     }
+    // const dialogModel = computed({
+    //   get: () => props.dialog,
+    //   set: (val) => {
+    //     emit('onDialog', val);
+    //   },
+    // });
+const data = () => {
 
-    const onDialog1 = (val) => {
-      state.dialogArticel = val;
-    };
+    // onMounted(async () => {
+    //   const dataGrop = await Promise.all([
+    //     $api.inventory.apiStockItem('getInvMainGroup'),
+    //   ]);
 
-    const onDialog2 = (val) => {
-      state.dialogAcount = val;
-    };
+    //   state.subMain.main = mapGroup(
+    //     dataGrop[0].tLHauptgrp['t-l-hauptgrp'],
+    //     'bezeich',
+    //     'endkum'
+    //   );
+    // });
+
+    // const GET_DATA = async (val) => {
+    //   const GET_DATA = await Promise.all([
+    //     $api.inventory.apiStockItem('chgInvArticlePrepare', {
+    //       artnr: props.getAccountnumber,
+    //       changed: 'no',
+    //     }),
+    //   ]);
+    //   state.inputName = GET_DATA[0].lArt['l-art'][0].bezeich;
+    //   state.subMain.mains = GET_DATA[0].endBezeich;
+    //   state.subGroup.subs = GET_DATA[0].zwBezeich;
+    //   state.totalBudget = GET_DATA[0].lArt['l-art'][0].artnr;
+    //   state.unitPrice.DeliveryUnit = GET_DATA[0].lArt['l-art'][0].traubensorte;
+    //   state.unitPrice.messUnit = GET_DATA[0].lArt['l-art'][0].masseinheit;
+    //   state.unitPrice.recipeUnit = GET_DATA[0].sUnit;
+    //   state.modelRecipeNumber = '000,000';
+    //   //
+    //   state.unitPrice.unitPrice1 = GET_DATA[0].lArt['l-art'][0]['ek-aktuell'];
+    //   state.unitPrice.unitPrice2 = GET_DATA[0].lArt['l-art'][0]['ek-letzter'];
+    //   state.unitPrice.unitPrice3 = GET_DATA[0].lArt['l-art'][0]['vk-preis'];
+    // };
+
+    // watch(
+    //   () => props.accountId,
+    //   (accountId, prev) => {
+    //     if (accountId && accountId !== prev) {
+    //       GET_DATA(accountId);
+    //     }
+    //   }
+    // );
+
+    // function clickMainGrup() {
+    //   async function asyncCall() {
+    //     const dataSub = await Promise.all([
+    //       $api.inventory.apiStockItem('getInvSubGroup', {
+    //         mainNr: state.subMain.mains.value,
+    //       }),
+    //     ]);
+
+    //     state.subGroup.sub = mapGroup(
+    //       dataSub[0].szwkumList['szwkum-list'],
+    //       'bezeich',
+    //       'zwkum'
+    //     );
+    //   }
+    //   asyncCall();
+    // }
+
+    // function clickSubGroup() {
+    //   async function asyncCall() {
+    //     const dataArticle = await Promise.all([
+    //       $api.inventory.apiStockItem('getInvArtNo', {
+    //         pvILanguage: 1, // buat default value = 1
+    //         caseType: 2, // buat default value = 2
+    //         inpInt: state.subGroup.subs.value, // zwkum - SUB GROUP
+    //         inpInt2: state.subMain.mains.value, // endkum - MAIN GROUP
+    //         inpChar: ' ', // buat default value = “ ”
+    //       }),
+    //     ]);
+
+    //     state.totalBudget = dataArticle[0].outInt;
+    //   }
+    //   asyncCall();
+    // }
+
+    // function saveData() {
+    //   async function saveData() {
+    //     const saveData = await Promise.all([
+    //       $api.inventory.apiStockItem('addInvArticle', {
+    //         artnr: state.totalBudget.toString(),
+    //         bezAend: state.model,
+    //         dmlArt: state.model2,
+    //         fibukonto: state.modelAccountNumber,
+    //         pvILanguage: 1,
+    //         sUnit: state.unitPrice.recipeUnit,
+    //         lArt: {
+    //           'l-art': [
+    //             {
+    //               alkoholgrad: undefined,
+    //               anzverbrauch: state.additional.maxStock,
+    //               artnr: state.totalBudget.toString(),
+    //               betriebsnr: state.modelRecipeNumber,
+    //               bezeich: state.inputName,
+    //               'ek-aktuell': state.unitPrice.unitPrice1,
+    //               'ek-letzter': state.unitPrice.unitPrice2,
+    //               endkum: state.subMain.mains.value,
+    //               fibukonto: state.modelAccountNumber,
+    //               inhalt: state.unitPrice.UnitConvertion2,
+    //               jahrgang: state.model == 'no' ? '0' : '1',
+    //               'lief-artnr[1]': '?',
+    //               'lief-artnr[2]': '?',
+    //               'lief-artnr[3]': '?',
+    //               'lief-einheit': state.unitPrice.UnitConvertion1,
+    //               'lief-nr1': '?',
+    //               'lief-nr2': '?',
+    //               'lief-nr3': '?',
+    //               masseinheit: state.unitPrice.messUnit,
+    //               'min-bestand': state.additional.minStock,
+    //               traubensorte: state.unitPrice.DeliveryUnit,
+    //               'vk-preis': state.unitPrice.unitPrice3,
+    //               'wert-verbrau': '0',
+    //               zwkum: state.subGroup.subs.value,
+    //             },
+    //           ],
+    //         },
+    //         ttArtnr: {
+    //           'tt-artnr': [],
+    //         },
+    //         ttContent: {
+    //           'tt-content': [],
+    //         },
+    //       }),
+    //     ]);
+    //   }
+    //   saveData();
+    // }
+
+    // function onRowRecipe(row) {
+    //   state.modelRecipeNumber = row.kategorie;
+    // }
+
+    // function onRowAccount(row) {
+    //   state.modelAccountNumber = row.fibukonto;
+    // }
+    
+
+    // function dialogAcountNumber() {
+    //   state.dialogAcount = true;
+    // }
+
+    // const onDialog1 = (val) => {
+    //   state.dialogArticel = val;
+    // };
+
+    // const onDialog2 = (val) => {
+    //   state.dialogAcount = val;
+    // };
+}
+
+
 
     return {
       inputCategory,
-      inputArticelNumber,
-      UnitPrice,
-      inputUnitPrice,
-      onDialog1,
-      saveData,
-      onDialog2,
-      dialogModel,
-      onRowRecipe,
-      onRowAccount,
-      clickMainGrup,
-      clickSubGroup,
+      valueDelUnit,
       modalRecipe,
-      dialogAcountNumber,
+      UnitPrice,
+      clickMainGrup,
+      inputUnitPrice,
+      inputAdditional,
       ...toRefs(state),
       pagination: { page: 1, rowsPerPage: 0 },
     };
