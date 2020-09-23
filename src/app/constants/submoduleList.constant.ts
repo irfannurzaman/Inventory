@@ -23,7 +23,7 @@ const SUBMODULES: Submodule = {
 export const generateModulePath = (moduleAbbr: string, name: string) => {
   const pageName = name.replace(/ /g, '');
   const path = name.replace(/\s+/g, '-').toLowerCase();
-
+  
   return {
     icon: `${moduleAbbr}/Icon-${pageName}`,
     name,
@@ -33,6 +33,7 @@ export const generateModulePath = (moduleAbbr: string, name: string) => {
     pageName,
   };
 };
+
 
 export const SUBMODULE_LIST: ModulePath = {
   ...Object.keys(SUBMODULES).reduce((prev, curr) => {

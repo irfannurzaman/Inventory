@@ -114,6 +114,12 @@ export const inputCategory = [
     mt: '15px',
     mL: '-3px'
   },
+  {
+    label: 'Name',
+    value: '',
+    width: '500px',
+    marginLeft: '200px',
+  },
 ]
 
 
@@ -271,36 +277,41 @@ export const inputAdditional = [
     label: 'Min Stock',
     value: '',
     width: '250px',
-    disable: true
+    disable: true,
+    off: '1'
   },
   {
     label: '',
-    value: '',
-    width: '50px',
+    value: '@ mess',
+    width: '80px',
     mT: '25px',
     mR: '200px',
     disable: true,
-    mL: '-5px'
+    mL: '-5px',
+    off: '2'
   },
   {
     label: 'Max Stock',
     value: '',
     width: '250px',
     disable: true,
+    off: '1'
   },
   {
     label: '',
-    value: '',
-    width: '50px',
+    value: '@ mess',
+    width: '80px',
     mT: '25px',
     mR: '200px',
     disable: true,
+    off: '2',
     mL: '-5px'
   },
   {
     label: 'Account Number For Direct Issue Outgoing',
     value: '',
     width: '300px',
+    onClick: true
   },
 ]
 

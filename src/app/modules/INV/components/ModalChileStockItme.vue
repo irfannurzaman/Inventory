@@ -1,33 +1,21 @@
 <template>
-  <q-dialog v-model="dataRecipe.dialogArticel" persistent>
-    <q-card style="width: 400px; height: auto">
+  <q-dialog v-model="dataAccount.dialog" persistent>
+    <q-card style="width: 560px; height: auto">
       <q-toolbar>
-        <q-toolbar-title class="text-white text-weight-medium">Title Recipe</q-toolbar-title>
+        <q-toolbar-title class="text-white text-weight-medium">Title Acct</q-toolbar-title>
       </q-toolbar>
       <q-card-section>
       <STable
         :loading="false"
         :columns="tableHeaders"
-        :data="dataRecipe.data"
+        :data="dataAccount.data"
         :rows-per-page-options="[0]"
         :pagination.sync="pagination"
-        :hide-bottom="dataRecipe.hide_bottom"
+        :hide-bottom="hide_bottom"
         class="table-accounting-date"
        >
-        <template #header-cell-fibukonto="props">
-          <q-th :props="props" class="fixed-col left">{{ props.col.label }}</q-th>
-        </template>
-
-        <template #body-cell-fibukonto="props">
-          <q-td :props="props" class="fixed-col left">{{ props.row.fibukonto }}</q-td>
-        </template>
-
-        <template #header-cell-actions="props">
-          <q-th style="z-index: 4;" :props="props" class="fixed-col right">{{ props.col.label }}</q-th>
-        </template>
-
         <template v-slot:body="props">
-            <q-tr :props="props" @click="onRowClick(props.row)" 
+          <q-tr :props="props" @click="onRowClick(props.row)" 
             :class="{
               selected : props.row.selected
             }">
@@ -43,7 +31,7 @@
                 <q-menu :props="props" auto-close anchor="bottom right" self="top right">
                   <q-list :props="props">
                     <q-item :props="props" clickable v-ripple>
-                      <q-item-section> Account</q-item-section>
+                      <q-item-section>Choose</q-item-section>
                     </q-item>
                   </q-list>
                 </q-menu>
@@ -78,42 +66,55 @@ import { formatThousands } from '~/app/helpers/numberFormat.helpers';
 
 export default defineComponent({
   props: {
-    dataRecipe: { type: Object, required: true }
+    dataAccount: { type: Object, required: true }
   },
   setup(props, { emit, root: { $api } }) {
     const state = reactive({
-      dataRow: ''
+      dataRow: '',
+      hide_bottom: true
     });
 
     const onRowClick = (datarow) => {
-     const x = props.dataRecipe.data
+     const x = props.dataAccount.data
       for(const i of x){
         i.selected = false
       }
       datarow['selected'] = true;
-      state.dataRow = datarow
+      state.dataRow = datarow.fibukonto
     }
 
     const tableHeaders = [
       {
-        label: '',
+        label: 'Account Number',
         required: true,
-        name: 'artnrrezept',
+        name: 'accountnumber',
         align: 'left',
-        field: 'artnrrezept',
+        field: 'fibukonto',
         format: val => `${val}`,
         sortable: true
       },
       {
         label:'Description',
-        name: 'Description',
+        name: 'description',
         field:'bezeich',
         align:'left',
       },
       {
-        label: 'Category',
-        name: 'Category',
-        field: 'kategorie',
+        label: 'Type',
+        name: 'type',
+        field: 'acc-type',
+        align: 'left',
+      },
+      {
+        label: 'Department',
+        name: 'department',
+        field: 'deptnr',
+        align: 'left',
+      },
+      {
+        label: 'Main',
+        name: 'main',
+        field: 'main-nr',
         align: 'left',
       },
       { name: 'actions', field: 'actions' },
@@ -121,8 +122,8 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
-      onRowClick,
       tableHeaders,
+      onRowClick,
       pagination: { page: 1, rowsPerPage: 0 },
     };
   },
@@ -140,10 +141,6 @@ export default defineComponent({
     th {
       position: sticky;
       z-index: 3;
-    }
-    th .text-right{
-      position: sticky;
-      z-index: 4;
     }
 
     &:first-child th {

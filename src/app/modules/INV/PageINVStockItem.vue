@@ -93,10 +93,10 @@
               <q-icon name="mdi-dots-vertical" size="16px">
                 <q-menu :props="props" auto-close anchor="bottom right" self="top right">
                   <q-list :props="props">
-                    <q-item :props="props" clickable v-ripple>
+                    <q-item @click="onEdit(props.row)" :props="props" clickable v-ripple>
                       <q-item-section>edit</q-item-section>
                     </q-item>
-                    <q-item clickable v-ripple>
+                    <q-item @click="onDelete(props.row)" clickable v-ripple>
                       <q-item-section>delete</q-item-section>
                     </q-item>
                   </q-list>
@@ -115,22 +115,6 @@
     <DialogChartOfAccounts
       :dataDialog="dataDialog"
     />
-    <q-dialog v-model="confirm" persistent>
-      <q-card>
-        <q-card-section class="row items-center">
-          <q-avatar icon="warning" color="primary" text-color="white" />
-          <span class="q-ml-sm">
-            Are you sure delete the stock article {{ 1101002 }} - Avocado
-            ?
-          </span>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn @click="deleteData" flat label="Ok" color="primary" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </div>
 </template>
 
@@ -144,8 +128,8 @@ import {
 } from '@vue/composition-api';
 import { mapWithBezeich } from '~/app/helpers/mapSelectItems.helpers';
 import { roomTableHeaders, inputCategory } from './tables/stockItem.table';
-import { data_table } from './utils/params.stockItem'
-import {scroll} from 'quasar'
+import { data_table, functional_modify } from './utils/params.stockItem'
+import {scroll, Notify} from 'quasar'
 
 export default defineComponent({
   setup(_, { root: { $api } }) {
@@ -168,13 +152,37 @@ export default defineComponent({
     });
 
     // helpers
-
     const MAP_DATA = (data) => {
       return data.map(items => ({
         label : `${items.endkum} - ${items.bezeich}`,
         value: items.endkum
       }))
     }
+
+    const NotifyCreate = (mess) => Notify.create({
+      message: `Are you sure delete the stock article ${mess.toString()} - Avocado`,
+      color: 'primary',
+      position: 'center',
+      textColor: 'white',
+      timeout: 0,
+      multiLine: true,
+      actions:  [
+      { label: 'No', color: 'white', handler: () => { /* ... */ } },
+      { label: 'Yes', color: 'white', handler: () => {
+        FETCH_API('delInvArticle', {
+          pvILanguage: '1',
+          artnr: mess
+        })
+      }},
+      ]
+      });
+    const NotifyCreate1 = () => Notify.create({
+      message: `Stock Onhand exists, deleting not possible.`,
+      type: 'negative',
+      position: 'top',
+      textColor: 'white',
+      timeout: 2000,
+      });
 
     // FETCH API
     const FETCH_API = async (api, body?) => {
@@ -198,10 +206,18 @@ export default defineComponent({
           const x = GET_DATA.tLHauptgrp['t-l-hauptgrp']
           inputCategory[0].options = MAP_DATA(x)
           break;
+        case 'chgInvArticlePrepare':
+          state.dataDialog.dialog = true
+          functional_modify(GET_DATA)
+          break;
         default:
+          if (GET_DATA.strMsg !== '') {
+            NotifyCreate1()
+          }
           break;
       }
     }
+
 
     onMounted(() => {
       FETCH_API('getInvMainGroup')
@@ -236,30 +252,20 @@ export default defineComponent({
       }
     };
 
+    const onDelete = (value) => {
+      NotifyCreate(value.artnr)
+    }
+
+    const onEdit = (value) => {
+      FETCH_API('chgInvArticlePrepare', {
+        changed: 'false',
+        artnr: value.artnr
+      })
+    }
+
     const onDialog = (val) => {
       state.dataDialog.dialog = true;
     };
-
-    function deleteData() {
-      async function asyncCall() {
-        const GET_DATA = await Promise.all([
-          $api.inventory.apiStockItem('delInvArticle', {
-            pvILanguage: 1,
-            artnr: state.dataDialog.valueData,
-          }),
-        ]);
-      }
-      asyncCall();
-    }
-
-    const onRowClick = (p, val) => {
-      state.dataDialog.valueData = val.artnr;
-    };
-
-    function editItem(accountId) {
-      state.dataDialog.dialog = true;
-      state.dataDialog.accountId = accountId;
-    }
 
     function getDefaultColumns(cols) {
       return cols.filter(
@@ -290,10 +296,9 @@ export default defineComponent({
       roomTableHeaders,
       getDefaultColumns,
       getDefaultData,
-      editItem,
-      onRowClick,
       onScroll,
-      deleteData,
+      onDelete,
+      onEdit,
       onSearch,
       onDialog,
       pagination: {
