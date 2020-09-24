@@ -265,6 +265,7 @@ export default defineComponent({
 
     const onDialog = (val) => {
       state.dataDialog.dialog = true;
+      functional_modify({})
     };
 
     function getDefaultColumns(cols) {

@@ -188,6 +188,7 @@ import {
 import {
 inputCategory, 
 inputAdditional,
+
 UnitPrice, 
 inputUnitPrice} from '../tables/stockItem.table'
 import {dataArticel, dataAccount} from '../utils/params.stockItem'
