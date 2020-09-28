@@ -21,6 +21,7 @@
         :rows-per-page-options="[0]"
         :pagination.sync="pagination"
         class="table-accounting-date"
+        :hide-bottom="hide_bottom"
       >
       <template v-slot:body="props">
         <q-tr :props="props" @click="selection(props.row)" 
@@ -54,6 +55,7 @@ export default defineComponent({
       isFetching: false,
       data: [],
       searches: {} as any,
+      hide_bottom: false
     });
 
             // HELPER 
@@ -90,6 +92,9 @@ export default defineComponent({
           state.data = dataTable(GET_DATA)
           state.searches = dataState(Object.assign(GET_DATA, params), 'search')
           state.isFetching = false
+          if (state.data.length !== 0) {
+            state.hide_bottom = true
+          }
           }, 1500)
         } else {
           if (GET_DATA.msgStr !== '') {

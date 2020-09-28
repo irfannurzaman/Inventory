@@ -16,7 +16,9 @@ const SUBMODULES: Submodule = {
     'Outlet Compliment Journalizing',
     'StoreRequisition',
     'Recipe',
-    'Stock Item'
+    'Stock Item',
+    'Stored with PO',
+    'Incoming Stock'
   ]
 };
 

@@ -263,7 +263,7 @@ export const UnitPrice = [
   {
     label: '',
     key: '1',
-    value: '@unit',
+    value: '@ unit',
     width: '80px',
     top: '11px',
     placeholder: '',

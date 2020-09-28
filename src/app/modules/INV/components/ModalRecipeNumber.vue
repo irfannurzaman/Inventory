@@ -43,7 +43,7 @@
                 <q-menu :props="props" auto-close anchor="bottom right" self="top right">
                   <q-list :props="props">
                     <q-item :props="props" clickable v-ripple>
-                      <q-item-section> Account</q-item-section>
+                      <q-item-section>Account</q-item-section>
                     </q-item>
                   </q-list>
                 </q-menu>
@@ -58,7 +58,7 @@
 
       <q-card-actions align="right" self-end>
         <q-btn size="sm" flat label="Cancel" v-close-popup />
-        <q-btn size="sm" color="primary" label="OK" @click="$emit('onClickAccount', dataRow)" />
+        <q-btn size="sm" color="primary" label="OK" @click="$emit('onClickNumber', dataRow)" />
       </q-card-actions>
     </q-card>
   </q-dialog>

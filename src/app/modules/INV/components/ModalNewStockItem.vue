@@ -243,7 +243,6 @@ export default defineComponent({
         case 'getInvArtNo':
           setTimeout(() => {
             inputCategory[2].value = GET_DATA.outInt
-            state.tab = 'UnitPrice'
             if(inputCategory[2].value !== null){
               state.result = false
             }

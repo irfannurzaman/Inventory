@@ -82,11 +82,11 @@ const input_params = [
     '@Mess',
     '1Unit=',
     'Mess',
-    '@Unit',
+    '@ Unit',
     '1Mess',
     'Recipe',
-    '@Unit',
-    '@Unit'
+    '@ Unit',
+    '@ Unit'
 ]
 
 export const functional_modify = (GET_DATA) => {
