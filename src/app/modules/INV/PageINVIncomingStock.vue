@@ -12,7 +12,7 @@
               :label-text="i.name"
               :style="{width: i.width, marginTop: i.top, marginRight: i.right}"
               :disable="i.disable"
-              v-modal="i.value"
+              v-model="i.value"
             />
           </div>
         </div>
@@ -35,6 +35,7 @@
               @click.prevent="dialogDeliveryNumber(i.onClick)"
               @blur="unitQuantity(i.blur)"
               :disable="i.disable"
+              v-model="i.value"
             >
             <q-icon 
               v-if="i.icon"
@@ -198,7 +199,12 @@ import {
   watch
 } from '@vue/composition-api';
 import { Notify } from 'quasar';
-import { tableHeaders, DeliveryNumber, use_input, use_input2 } from './tables/IncomingStock.tables';
+import { 
+ tableHeaders,
+ DeliveryNumber, 
+ use_input, 
+ use_input2 } from './tables/IncomingStock.tables';
+import {data_table} from './utils/params.incomingstock'
 export default defineComponent({
   setup(_, { root: { $api } }) {
     let charts;
@@ -231,17 +237,50 @@ export default defineComponent({
       reasson: ''
     });
 
+    const NotifyCreate = () => Notify.create({
+      message: `Sorry, no access right`,
+      type: 'negative',
+      position: 'top',
+      textColor: 'white',
+      timeout: 2000,
+    });
+
+
     const FETCH_API = async (api, body) => {
-      const GET_DATA = await $api.inventory.FetchAPIINV(api, body)
-      console.log('sukses', GET_DATA)
+      const [GET_DATAcommon, GET_DATA] = await Promise.all([
+        $api.inventory.FetchCommon(api, body),
+        $api.inventory.FetchAPIINV(api, body)
+      ])
+          switch (api) {
+            case 'checkPermission':
+              if (GET_DATAcommon.zugriff !== 'true') {
+                NotifyCreate()
+              } else {
+                use_fetchdata()
+              }
+              break;
+            case 'pchaseStockInReturnPrepare':
+              data_table(GET_DATA)
+              break;
+            default:
+              break;
+          }
     }
 
     onMounted(() => {
       FETCH_API('checkPermission', {
+        userInit: '01',
         arrayNr: '39',
         expectedNr: '2'
       })
     });
+
+    const use_fetchdata = () => {
+      FETCH_API('pchaseStockInReturnPrepare', {
+        "bedienerPermissions": " ",
+        "docuNr": "P190114012"
+      })
+    }
 
 
     watch(() => state.prepare, 
