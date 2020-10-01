@@ -187,6 +187,7 @@ export const tableHeaders = [
       width: '155px',
       right: '20px',
       onClick: 'DeleveryNumber',
+      value2: '',
       icon: true
     },
     {
@@ -213,19 +214,19 @@ export const tableHeaders = [
       value: '',
       width: '85px',
       disable: true,
-      right: '10px'
     },
     {
       name: 'Delivery Unit Quantity',
       value: '',
-      width: '150px',
+      width: '145px',
       disable: true,
       blur: 'dileveryUnit',
+      right: '20px'
     },
     {
       name: 'Mess Unit Quantity',
       value: '',
-      width: '150px',
+      width: '145px',
       right: '20px',
       disable: true
     },
@@ -243,4 +244,8 @@ export const tableHeaders = [
       right: '20px',
       disable: true
     },
+    {
+      name: 'return',
+      disable: true
+    }
   ]

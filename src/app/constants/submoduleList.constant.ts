@@ -18,7 +18,10 @@ const SUBMODULES: Submodule = {
     'Recipe',
     'Stock Item',
     'Stored with PO',
-    'Incoming Stock'
+    'Incoming Stock',
+    'Stored with outPO',
+    'IncomingStockoutPO',
+    'Issued without PO'
   ]
 };
 

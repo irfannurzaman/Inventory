@@ -2,37 +2,38 @@
   <div>
   <div class="column justify-between">
     <div class="col-7" style="height: 565px">
-        <div class="row">
-      <div style="marginLeft: 10px" class="col-4">
-        <div class="q-pa-lg">
-          <div class="row">
-            <SInput
-              :key="i.name"
-              v-for="i in use_input"
-              :label-text="i.name"
-              :style="{width: i.width, marginTop: i.top, marginRight: i.right}"
-              :disable="i.disable"
-              v-model="i.value"
-            />
+      <div class="row">
+        <div style="marginLeft: 10px" class="col-4">
+          <div class="q-pa-lg">
+            <div class="row">
+              <SInput
+                :key="i.name"
+                v-for="i in use_input"
+                :label-text="i.name"
+                :style="{width: i.width, marginTop: i.top, marginRight: i.right}"
+                :disable="i.disable"
+                v-model="i.value"
+              />
+            </div>
           </div>
+            <div class="q-pa-md">
+              <q-input
+                style="max-width: 375px"
+                filled
+                type="textarea"
+              />
+            </div>
         </div>
-          <div class="q-pa-md">
-            <q-input
-              style="max-width: 375px"
-              filled
-              type="textarea"
-            />
-          </div>
-      </div>
       <div style="marginLeft: -20px" class="col-8">
         <div class="q-pa-lg">
           <div class="row">
             <SInput
               :key="i.name"
               :label-text="i.name"
-              v-for="i in use_input2"
+              v-for="i in use_input2.filter(col => ![
+              'return'].includes(col.name))"
               :style="{width: i.width, marginRight: i.right}"
-              @click.prevent="dialogDeliveryNumber(i.onClick)"
+              @click.prevent="dialogDeliveryNumber(i)"
               @blur="unitQuantity(i.blur)"
               :disable="i.disable"
               v-model="i.value"
@@ -48,13 +49,16 @@
               marginTop: 3px"/>
             </SInput>
             <q-btn
+              :key="i.name"
+              v-for="i in use_input2.filter(col => [
+              'return'].includes(col.name))"
               size="sm"
               color="primary"
               max-height="10"
-              label="Return"
+              :label="i.name"
               style="width: 80px; marginTop: 25px; height: 25px;"
               @click="Clickreturn"
-              :disable="typeDisable"
+              :disable="i.disable"
             />
           </div>
           <q-card-actions align="right">
@@ -66,44 +70,28 @@
               </span>
           </q-card-actions>
           <STable
-            @row-click="onRowClick2"
-            dense
-            class="my-sticky-virtscroll-table"
+            class="table-rooming-list"
             :columns="tableHeaders"
             :data="data"
-            separator="cell"
             :rows-per-page-options="[0]"
             :pagination.sync="pagination"
-            :hide-bottom="false"
-            row-key="index"
+            :hide-bottom="hide_bottom"
           >
-            <template #header-cell-fibukonto="props">
-              <q-th :props="props" class="fixed-col left">{{ props.col.label }}</q-th>
-            </template>
-
-            <template #body-cell-fibukonto="props">
-              <q-td :props="props" class="fixed-col left">{{ props.row.fibukonto }}</q-td>
-            </template>
-
-            <template #header-cell-actions="props">
-              <q-th :props="props" class="fixed-col right">{{ props.col.label }}</q-th>
-            </template>
-
-            <template #body-cell-actions="props">
-              <q-td :props="props" class="fixed-col right">
-                <q-icon name="mdi-dots-vertical" size="16px">
-                  <q-menu auto-close anchor="bottom right" self="top right">
-                    <q-list>
-                      <q-item clickable v-ripple @click="editItem">
-                        <q-item-section>edit</q-item-section>
-                      </q-item>
-                      <q-item clickable v-ripple @click="confirm = true">
-                        <q-item-section>delete</q-item-section>
-                      </q-item>
-                    </q-list>
-                  </q-menu>
-                </q-icon>
-              </q-td>
+            <template v-slot:body="props">
+              <q-tr
+              :class="{
+                selected : props.row.selected
+              }" 
+              :props="props" 
+              @click="onRowClick2(props.row)">
+                <q-td
+                :props="props"
+                v-for="col in props.cols"
+                :key="col.name"
+                >
+                  {{col.value}}
+                </q-td>
+              </q-tr>
             </template>
           </STable>
         </div>
@@ -113,15 +101,15 @@
     <div class="col-1">
     <q-separator />
       <q-card-actions align="right">
-         <q-btn
-         size="sm"
+        <q-btn
+          size="sm"
           outline
           color="primary"
           label="Cancel"
           style="width: 100px; height: 25px; marginRight: 20px; marginTop: -4px"
         />
         <q-btn
-         size="sm"
+          size="sm"
           color="primary"
           label="save"
           style="width: 100px; height: 25px; marginRight: 20px; marginTop: -4px"
@@ -141,24 +129,47 @@
                 </q-toolbar-title>
              </q-toolbar>
                 <q-card-section>
-                  <q-table
-                    dense
-                    class="my-sticky-virtscroll-table"
+                  <STable
+                    class="table-rooming-list2"
                     :columns="DeliveryNumber"
                     :data="dataDeliveryNumber"
                     separator="cell"
                     :rows-per-page-options="[0]"
                     :pagination.sync="pagination"
-                    :virtual-scroll-sticky-size-start="48"
-                    hide-bottom
-                    @row-click="onRowClick"
-                    row-key="index"
-                  />
+                    :hide-bottom="hide_bottom2"
+                  >
+                  <template v-slot:body="props">
+                    <q-tr
+                    :class="{
+                      selected : props.row.selected
+                    }" 
+                    :props="props" 
+                    @click="onRowClick(props.row)">
+                      <q-td
+                      :props="props"
+                      v-for="col in props.cols"
+                      :key="col.name"
+                      >
+                        {{col.value}}
+                      </q-td>
+                    </q-tr>
+                  </template>
+                  </STable>
                 </q-card-section>
                 <q-separator />
                 <q-card-actions align="right">
-                  <q-btn size="sm" label="Cancel" style="height: 30px" color="primary" @click="onClickCencelDeliveryNumber"/>
-                  <q-btn size="sm" unelevated color="primary" label="OK" style="height: 30px" @click="onClickDeliveryNumber" />
+                  <q-btn 
+                  size="sm" 
+                  label="Cancel" 
+                  style="height: 30px" 
+                  @click="onClickCencelDeliveryNumber"/>
+
+                  <q-btn 
+                  size="sm" 
+                  color="primary" 
+                  label="OK" 
+                  style="height: 30px"
+                  @click="onClickDeliveryNumber" />
                 </q-card-actions>
           </q-card>
       </q-dialog>
@@ -182,7 +193,7 @@
   
           <q-card-actions align="right" class="text-primary">
             <q-btn size="sm" flat label="Cancel" v-close-popup />
-            <q-btn size="sm" flat label="Ok" v-close-popup @click="enterCencelReason"/>
+            <q-btn   color="primary" size="sm" label="Ok" v-close-popup @click="enterCencelReason"/>
           </q-card-actions>
       </q-card>
     </q-dialog>
@@ -198,73 +209,112 @@ import {
   reactive,
   watch
 } from '@vue/composition-api';
-import { Notify } from 'quasar';
+import { Notify, date } from 'quasar';
 import { 
  tableHeaders,
  DeliveryNumber, 
  use_input, 
  use_input2 } from './tables/IncomingStock.tables';
-import {data_table} from './utils/params.incomingstock'
+import {x, params} from './utils/params.incomingstock'
 export default defineComponent({
   setup(_, { root: { $api } }) {
-    let charts;
+    let charts, rowDev, rowDN, valTable;
 
     const state = reactive({
       isFetching: false,
       data: [],
       dataDeliveryNumber: [],
+      hide_bottom2: false,
+      hide_bottom: false,
       searches: {
         departments: [],
         store: [],
       },
-      checkPermission: false,
-      prepare: {},
       dialogModel: false,
-      storageNumber: '',
-      deliveryNumber: '',
-      documentNumber: '',
-      itemSelected : '',
-      deliveryUnit: '',
-      tLOrderhdr: [],
-      content: '',
-      popUp: false,
-      dataPopup: '',
-      dataTable: [],
       modalReturn: false,
-      DeliveryUnitQuantity: '',
-      messUnitQuantity: '',
-      typeDisable: true,
       reasson: ''
     });
 
-    const NotifyCreate = () => Notify.create({
-      message: `Sorry, no access right`,
+    const NotifyCreate = (message) => Notify.create({
+      message: message,
       type: 'negative',
       position: 'top',
       textColor: 'white',
       timeout: 2000,
     });
 
-
     const FETCH_API = async (api, body) => {
       const [GET_DATAcommon, GET_DATA] = await Promise.all([
         $api.inventory.FetchCommon(api, body),
         $api.inventory.FetchAPIINV(api, body)
       ])
-          switch (api) {
-            case 'checkPermission':
-              if (GET_DATAcommon.zugriff !== 'true') {
-                NotifyCreate()
-              } else {
-                use_fetchdata()
-              }
-              break;
-            case 'pchaseStockInReturnPrepare':
-              data_table(GET_DATA)
-              break;
-            default:
-              break;
-          }
+        switch (api) {
+          case 'checkPermission':
+            if (GET_DATAcommon.zugriff !== 'true') {
+              NotifyCreate('Sorry, no access right')
+            } else {
+              use_fetchdata()
+            }
+            break;
+          case 'pchaseStockInReturnPrepare':
+            charts = Object.assign(
+              GET_DATA,
+              GET_DATA.tLOrderhdr['t-l-orderhdr'][0]
+            )
+            params.map((items, index) => {
+              use_input[
+                index
+              ].value = x(charts)[
+                items as any]
+              use_input2[0].value2 = x(charts)['docu-nr']
+            })
+            const select = {
+              selected: false
+            }
+            state.data = GET_DATA.tLArtikel['t-l-artikel'].map((item, i) =>
+             Object.assign({}, item, GET_DATA.tLOrder['t-l-order'][i], select))
+             if (state.data.length !== 0) {
+               state.hide_bottom = true
+             }
+            break;
+          case 'poDeliverNote':
+            state.dataDeliveryNumber = GET_DATA.delivernoteList[
+              'delivernote-list'].map(items => ({
+              datum: date.formatDate(items.datum, 'DD/MM/YY'),
+              'lager-nr': items['lager-nr'],
+              'docu-nr': items['docu-nr'],
+              lscheinnr: items.lscheinnr,
+              selected: false
+            }))
+            if (state.dataDeliveryNumber.length !== 0) {
+              state.hide_bottom2 = true
+            }
+            break;
+          case 'pchaseStockInReturnSelectSchein':
+            rowDN = `${GET_DATA.currLager}-${GET_DATA.lagerBezeich}`
+            break;
+          case 'pchaseStockInReturnLscheinnr':
+            if (GET_DATA.errCode == 1) {
+              NotifyCreate('No such document number')
+            }
+            break;
+          case 'getHTParam0':
+            if(GET_DATAcommon.flogical == 'false'){
+              state.modalReturn = true
+            } else {
+              NotifyCreate('Inventory is running, posting not possible')
+            }
+            break;
+          case 'pchaseStockInReturnQty':
+            console.log(GET_DATA)
+            break;
+          case 'pchaseStockInReturnUpdateAP':
+            console.log('sukses', GET_DATA)
+            break;
+          default:
+            console.log(GET_DATA)
+            break;
+        }
     }
 
     onMounted(() => {
@@ -276,163 +326,154 @@ export default defineComponent({
     });
 
     const use_fetchdata = () => {
-      FETCH_API('pchaseStockInReturnPrepare', {
+      // docuNR Mengambil dari state global
+      FETCH_API(
+        'pchaseStockInReturnPrepare', {
         "bedienerPermissions": " ",
-        "docuNr": "P190114012"
+        "docuNr": "P190114001"
+      })
+    }
+
+    const dialogDeliveryNumber = (value) => {
+      if (value.onClick == 'DeleveryNumber') {
+        state.dialogModel = true
+        FETCH_API('poDeliverNote', {
+           "docuNr": value.value2
+        })
+      }
+    }
+
+    const onRowClick = (rowClick) => {
+      rowDev = rowClick
+      FETCH_API('pchaseStockInReturnSelectSchein', {
+        lOrderhdrDocuNr: charts['docu-nr'],
+        lOrderhdrLiefNr: charts['lief-nr'],
+        docuNr: rowClick['docu-nr'],
+        lscheinnr: rowClick.lscheinnr
+      })
+      for(const i of state.dataDeliveryNumber){
+        i.selected = false
+      }
+      rowClick['selected'] = true
+    }
+
+    const onClickDeliveryNumber = () => {
+      use_input2[0].value = rowDev.lscheinnr
+      use_input2[1].value = rowDN
+      state.dialogModel = false
+      FETCH_API('pchaseStockInReturnLscheinnr', {
+        docuNr: rowDev['docu-nr'],
+        lscheinnr: rowDev.lscheinnr
       })
     }
 
 
-    watch(() => state.prepare, 
-      async () => {
-              const [GET_DATA] = await Promise.all([
-                $api.inventory.apiStoredwithPO('poDeliverNote', {
-                  docuNr: state.tLOrderhdr[0]['docu-nr']
-                })
-              ])
-              state.dataDeliveryNumber = GET_DATA.delivernoteList['delivernote-list']  
-        }
-    )
-
-    const dialogDeliveryNumber = () => {
-      state.dialogModel = true
-    }
-
-    const onClickDeliveryNumber = async () => {
-      state.dialogModel = false
-      const [GET_DATA] = await Promise.all([
-        $api.inventory.apiStoredwithPO('pchaseStockInReturnLscheinnr', {
-          docuNr: state.documentNumber,
-          lscheinnr: state.deliveryNumber
-        })])
-        if (GET_DATA.errCode == 1) {
-          Notify.create({
-          message: 'No such document number',
-          color: 'red',
-        })
-        }
-    }
-
-    const onClickCencelDeliveryNumber = () => {
-      state.dialogModel = false
-      state.deliveryNumber = ''
-      state.storageNumber = ''
-    }
-    
-    const storageNumber = async (rowClick) => {
-        const [GET_DATA] = await Promise.all([
-          $api.inventory.apiStoredwithPO('pchaseStockInReturnSelectSchein', {
-          lOrderhdrDocuNr: state.tLOrderhdr[0]['docu-nr'],
-          lOrderhdrLiefNr: state.tLOrderhdr[0]['lief-nr'],
-          docuNr: rowClick['docu-nr'],
-          lscheinnr : rowClick.lscheinnr
-        })])
-        state.storageNumber = GET_DATA.currLager+"." +GET_DATA.lagerBezeich
-        state.deliveryNumber = rowClick.lscheinnr
-        state.documentNumber = rowClick['docu-nr']
-    }
-
-    const onRowClick = (e, rowClick) => {
-        storageNumber(rowClick)  
+    const data_incomingsock = (data) => {
+      return {
+        endkum: data.endkum,
+        rechnungspreis: data.rechnungspreis,
+        warenwert: data.warenwert,
+        'lief-fax': data['lief-fax'][0],
+        artnr: `${data.artnr} - ${data.bezeich}`
       }
-    
-    const onRowClick2 = (p, val) => {
-        if (state.deliveryNumber !== '') {
-        state.typeDisable = false
-        state.dataTable = val
-        state.deliveryUnit = val['lief-fax'][2]
-        state.itemSelected = val.artnr + ' - ' + val.bezeich
+    }
+        
+    const onRowClick2 = (val) => {
+      valTable = val
+        if (use_input2[0].value !== '') {
+          const x = use_input2.filter(i => [
+              'Mess Unit Quantity',
+              'Delivery Unit Quantity',
+              'return'
+            ].includes(i.name))
+          for(const i of x){
+            i.disable = false
+          }
+          for(const i of state.data){
+            i.selected = false
+          }
+          val['selected'] = true
+          const xi = ['Item Selected','Content', 'Unit Price', 'Amount',
+          'Delivery Unit']
+          const ky = ['artnr', 'lief-fax', 'endkum', 'rechnungspreis', 'warenwert']
+          const xii = use_input2.filter(i => xi.includes(i.name))
+          ky.map((x, i) => {
+            xii[i].value = data_incomingsock(val)[x]
+          })
         }
       };
 
-
-    const returnBarang = async () => {
-        const [GET_DATA] = await Promise.all([
-          $api.inventory.apiStoredCommon('getHTParam0', {
-            casetype: 1,
-            inpParam: 232
-          })
-        ])
-        if (GET_DATA.flogical == "false") {
-            state.modalReturn = true
+    const unitQuantity = (value) => {
+      const x = use_input2[5].value as any
+      if (value == 'dileveryUnit') {
+        if(!isNaN(x)){
+          if (valTable.anzahl < Number(x)) {
+            NotifyCreate('Wrong quantity')
+          }
         } else {
-          Notify.create({
-          message: 'Inventory is running, posting not possible',
-          color: 'red',
-        })
+            NotifyCreate('not a number')
         }
-    }
-    const Clickreturn = () => {
-      returnBarang()
-    }
-
-    const cencelReason = async () => {
-     const closeDate = state.dataTable['endkum'] <= 2 ? state.prepare['p224'] : state.prepare['p221']
-      const [GET_DATA, GET_DATA2] = await Promise.all([
-        $api.inventory.apiStoredwithPO('pchaseStockInReturnQty', {
-            transdate: state.prepare['p474'],
-            closedate: closeDate,
-            sArtnr: state.dataTable['artnr'],
-            currLager: state.storageNumber.substring(0, state.storageNumber.indexOf('.')),
-            qty: state.DeliveryUnitQuantity
-        }),
-        $api.inventory.apiStoredwithPO('pchaseStockInReturnSave', {
-          lOrderRecId: state.tLOrderhdr[0]['rec-id'],
-          sArtnr: state.dataTable['artnr'],
-          docuNr: state.tLOrderhdr[0]['docu-nr'],
-          exchgRate: state.prepare['exchgRate'],
-          priceDecimal: state.prepare['priceDecimal'],
-          liefNr: state.tLOrderhdr[0]['lief-nr'],
-          currLager: state.storageNumber.substring(0, state.storageNumber.indexOf('.')),
-          lscheinnr: state.deliveryNumber,
-          fEndkum: state.prepare['fEndkum'],
-          bEndkum: state.prepare['bEndkum'],
-          mEndkum: state.prepare['mEndkum'],
-          billdate: state.prepare['billdate'],
-          fbClosedate: state.prepare['fbClosedate'],
-          mClosedate: state.prepare['mClosedate'],
-          reason: state.reasson,
-          userInit: "01",
-          qty: state.DeliveryUnitQuantity,
-          price: state.DeliveryUnitQuantity,
-          amount: state.dataTable['rechnungspreis'],
-          tAmount: state.dataTable['warenwert']
-        })
-      ])
-    }
-
-    const unitQuantity = () => {
-       if(state.dataTable['anzahl'] < state.DeliveryUnitQuantity) {
-        state.popUp = true
-        state.dataPopup = 'Wrong quantity'
-         Notify.create({
-          message: 'Wrong quantity',
-          color: 'red',
-         })
       }
     }
 
+    const Clickreturn = () => {
+      FETCH_API('getHTParam0', {
+        casetype: 2,
+        inpParam: 110
+      })
+    }
+
     const enterCencelReason = () => {
-      cencelReason()
+      const x = valTable.endkum <= 2 ?
+      charts['p224'] : charts['p221']
+      FETCH_API('pchaseStockInReturnQty', {
+        transdate: charts['p474'],
+        closedate: x,
+        sArtnr: valTable.artnr,
+        currLager: rowDN.substring(0, rowDN.indexOf('-')),
+        qty: use_input2[5].value
+      })
+      FETCH_API('pchaseStockInReturnSave', {
+        "lOrderRecId": charts['rec-id'],
+        "sArtnr": valTable.artnr,
+        "docuNr": "P190114001",
+        "exchgRate": charts['docu-nr'],
+        "priceDecimal": charts.priceDecimal,
+        "liefNr": charts['lief-nr'],
+        "currLager": rowDN.substring(0, rowDN.indexOf('-')),
+        "lscheinnr": rowDev.lscheinnr,
+        "fEndkum": charts.fEndkum,
+        "bEndkum": charts.bEndkum,
+        "mEndkum" : charts.mEndkum,
+        "billdate" : charts.billdate,
+        "fbClosedate": charts.fbClosedate,
+        "mClosedate": charts.mClosedate,
+        "reason": state.reasson,
+        "userInit" : "01",
+        "qty" : use_input2[5].value,
+        "price": use_input2[7].value,
+        "amount": valTable.rechnungspreis,
+        "tAmount":  valTable.warenwert
+      })
     }
-    const saveData = async () => {
-      const [GET_DATA, GET_DATA2] = await Promise.all([
-        $api.inventory.apiStoredwithPO('pchaseStockInReturnUpdateAP', {
-          docuNr: state.tLOrderhdr[0]['docu-nr'],
-          tAmount: state.dataTable['rechnungspreis'],
-          liefNr: state.tLOrderhdr[0]['lief-nr'],
-          billdate: state.prepare['billdate'],
-          lscheinnr: state.deliveryNumber,
-          bedienerNr: "01"
-        }),
-        $api.inventory.apiStoredwithPO('pchaseStockInReturnReactiveOrder', {
-          caseType: 0,
-          docuNr: state.tLOrderhdr[0]['docu-nr']
-        })
-      ])
-    }
+
     const saveReturn = () => {
-      saveData()
+      FETCH_API('pchaseStockInReturnUpdateAP', {
+        docuNr: charts['docu-nr'],
+        "tAmount": valTable.rechnungspreis,
+        "liefNr": charts['lief-nr'],
+        "billdate": charts.billdate,
+        "lscheinnr" : rowDev.lscheinnr,
+        "bedienerNr" : "01"
+      })
+    }
+
+// batas
+
+    const onClickCencelDeliveryNumber = () => {
+      state.dialogModel = false
+      // state.deliveryNumber = ''
+      // state.storageNumber = ''
     }
     return {
       ...toRefs(state),
@@ -464,21 +505,44 @@ export default defineComponent({
   height: 10px
   
 }
-::v-deep .table-accounting-date {
+.table-rooming-list {
   max-height: 50vh;
-  height: 500px;
-  thead tr {
-    th {
-      position: sticky;
-      z-index: 3;
-    }
-
-    &:first-child th {
-      top: 0;
-    }
+  thead tr th {
+    position: sticky;
+    z-index: 3;
   }
-  #input {
-    width: 20px;
+
+  thead tr:first-child th {
+    top: 0;
+  }
+
+  thead tr:last-child th {
+    top: 28px;
+  }
+
+  tr.selected td {
+    background-color: #2d00e2 !important;
+    color: #fff;
+  }
+}
+.table-rooming-list2 {
+  max-height: 30vh;
+  thead tr th {
+    position: sticky;
+    z-index: 3;
+  }
+
+  thead tr:first-child th {
+    top: 0;
+  }
+
+  thead tr:last-child th {
+    top: 28px;
+  }
+
+  tr.selected td {
+    background-color: #2d00e2 !important;
+    color: #fff;
   }
 }
 </style>
